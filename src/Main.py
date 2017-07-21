@@ -35,6 +35,9 @@ def Initialization():
 print(" Simulation starts: ---")
 
 # The name of the input file: (This can be modified so that the input file can be read from the input)
+#InputFileName = input("Type the name of the input file: ")
+#print("Ok. You entered %s" % InputFileName)
+
 InputFileName = "ex1.inp"
 Input(InputFileName,)
 
