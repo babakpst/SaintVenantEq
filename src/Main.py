@@ -11,24 +11,6 @@
 #
 #####################################################################
 
-
-
-# This function reads the simulation data from file
-def Input():
-  print(" Reading input from file ...")
-  f = open('workfile', 'w')
-  print(" Reading input ends!")
-
-# This function processes the input data and provides the initial information for the simulation: Discretization, etc. 
-def Initialization():
-
-
-
-
-
-
-
-
 # =================================================================================================
 # This is the main code
 
