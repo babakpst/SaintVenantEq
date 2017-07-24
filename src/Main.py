@@ -7,21 +7,38 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/18/2017
-# Latest update: 07/19/2017
+# Latest update: 07/25/2017
 #
 #####################################################################
 
-# =================================================================================================
-# This is the main code
 
-print(" Simulation starts: ---")
+# Code begins =====================================================================================
+print(" ------- The 1D Saint Venant Equation based on the face face reconstruction -------")
+print(" -------------- Developers: Babak Poursartip/Ben R. Hodges/Frank Liu --------------")
+print()
+print()
+print(" Simulation starts ...")
+print()
 
-# The name of the input file: (This can be modified so that the input file can be read from the input)
+# Input data ======================================================================================
+
+# -- Read the name of the input file from the keyboard
 #InputFileName = input("Type the name of the input file: ")
 #print("Ok. You entered %s" % InputFileName)
 
-InputFileName = "ex1.inp"
-Input(InputFileName,)
+# -- Enter the file name through the code
+InputFileName = "ex1.inp"   # InputFileName: the name of the input file
+
+Experiment = Input_Class(InputFileName)
+
+# Initialization ==================================================================================
+
+
+
+
+
+
+
 
 
 
