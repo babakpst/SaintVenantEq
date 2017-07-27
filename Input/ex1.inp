@@ -1,0 +1,33 @@
+Input file for the SVE paper.
+
+Name: ex1 - based on the microprocessor paper.
+
+Upstream boundary condition, constant flow (m^3/s):
+500
+
+Downstream water depth (in meters):
+5
+
+Total number of sections (slopes):
+1
+
+Total Length (in meter) for each slope:
+5600
+
+Total number of segments for each slope:
+70
+
+Slope for each slope:
+2.5e-03
+
+Manning's number for each slope:
+0.0035
+
+Cross section widths of each slope (in meter, assumed to be rectangular for now) 
+20
+
+
+
+
+
+
