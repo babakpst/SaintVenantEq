@@ -1,0 +1,8 @@
+Input file name:
+ex1.inp
+
+Input directory:
+C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\SVE_Energy\Input
+
+Output directory:
+C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\SVE_Energy\Output
