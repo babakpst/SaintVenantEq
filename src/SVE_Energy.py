@@ -17,6 +17,7 @@
 
 # Import classes ==================================================================================
 import Input_Class
+import Discretization_Class
 #import Initialization
 
 # Code begins =====================================================================================
@@ -54,9 +55,11 @@ del Input_Dir
 
 # Reading data from the input file 
 Experiment = Input_Class.Input_Info(InputFileName)
-Experiment.Input()
+Input_Data = Experiment.Input() # Put the input data in Input_Data
 
 # Initialization ==================================================================================
+
+
 
 
 

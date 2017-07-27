@@ -2,6 +2,12 @@ Input file for the SVE paper.
 
 Name: ex1 - based on the microprocessor paper.
 
+Total run time (in seconds): 
+50
+
+Time step (in seconds):
+0.1 
+
 Upstream boundary condition, constant flow (m^3/s):
 500
 
