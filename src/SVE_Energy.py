@@ -16,8 +16,8 @@
 
 # Import classes ==================================================================================
 #import Input_Class  --delete
-import Discretization_Class
-#import Initialization
+#import Discretization_Class
+import Initialization_Class
 
 # Code begins =====================================================================================
 print(" -------- 1D Saint-Venant Equation based on the face reconstruction --------")
@@ -28,7 +28,7 @@ print(" Simulation starts ...")
 print()
 
 # Discretization ==================================================================================
-Discreitze_Experiment = Discretization_Class.Discretization()
+Ex = Initialization_Class.Initialization()
 
 # Initialization ==================================================================================
 

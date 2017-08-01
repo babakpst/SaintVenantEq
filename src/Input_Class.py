@@ -57,84 +57,91 @@ class Input_Info:
 
     Temp = self.File_Input.readline().split("\n")  # 5
     Temp = self.File_Input.readline().split("\n")  # 6
-    Total_Time = float(Temp[0])  # Total simulation time
-    print(" The total simulation time is: %f" % Total_Time)
+    self.Total_Time = float(Temp[0])  # Total simulation time
+    print(" The total simulation time is: %f" % self.Total_Time)
     print()
 
     Temp = self.File_Input.readline().split("\n") 
     Temp = self.File_Input.readline().split("\n") 
     Temp = self.File_Input.readline().split("\n") 
-    Time_Step = float(Temp[0])  # Time step
-    print(" The time step is: %f" % Time_Step)
+    self.Time_Step = float(Temp[0])  # Time step
+    print(" The time step is: %f" % self.Time_Step)
     print()
 
     Temp = self.File_Input.readline().split("\n")  
     Temp = self.File_Input.readline().split("\n")  
     Temp = self.File_Input.readline().split("\n")  
-    Q_Up = float(Temp[0])  # A constant flow rate at the upstream
-    print(" Flow rate at the upstream is: %f" % Q_Up)
+    self.Q_Up = float(Temp[0])  # A constant flow rate at the upstream
+    print(" Flow rate at the upstream is: %f" % self.Q_Up)
     print()
 
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
-    h_dw = float(Temp[0])  # Downstream water depth
-    print(" Downstream water depth is: %f" % h_dw)
+    self.h_dw = float(Temp[0])  # Downstream water depth
+    print(" Downstream water depth is: %f" % self.h_dw)
     print()
 
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
-    No_reaches  = int(Temp[0])  # Total number of reaches
-    print(" Total number of reach(es) is(are): %d" % No_reaches)
+    self.V_in = float(Temp[0])  # Downstream water depth
+    print(" Downstream water depth is: %f" % self.V_in)
+    print()
+
+    Temp       = self.File_Input.readline().split("\n")
+    Temp       = self.File_Input.readline().split("\n")
+    Temp       = self.File_Input.readline().split("\n")
+    self.No_reaches  = int(Temp[0])  # Total number of reaches
+    print(" Total number of reach(es) is(are): %d" % self.No_reaches)
     print()
 
     # Define arrays: 
-    Reach_Length  = np.zeros( No_reaches ) # Stores the length of each reach
-    Reach_Disc    = np.zeros( No_reaches ) # Stores the no. of control volume in each reach
-    Reach_Slope   = np.zeros( No_reaches ) # Stores the slope of each reach
-    Reach_Manning = np.zeros( No_reaches ) # Stores the Manning's number for each reach
-    Reach_Width   = np.zeros( No_reaches ) # Stores the width of each reach
+    self.Reach_Length  = np.zeros( self.No_reaches, dtype=np.float ) # Stores the length of each reach
+    self.Reach_Disc    = np.zeros( self.No_reaches, dtype=np.int   ) # Stores the no. of control volume in each reach
+    self.Reach_Slope   = np.zeros( self.No_reaches, dtype=np.float ) # Stores the slope of each reach
+    self.Reach_Manning = np.zeros( self.No_reaches, dtype=np.float ) # Stores the Manning's number for each reach
+    self.Reach_Width   = np.zeros( self.No_reaches, dtype=np.float ) # Stores the width of each reach
 
 
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
-    for ii in range(No_reaches): # Length of each reach
+    for ii in range(self.No_reaches): # Length of each reach
       Temp       = self.File_Input.readline().split("\n")
-      Reach_Length[ii] = float(Temp[0])
-      print(" The length of reach %d is: %f" % (ii+1, Reach_Length[ii]))
+      self.Reach_Length[ii] = float(Temp[0])
+      print(" The length of reach %d is: %f" % (ii+1, self.Reach_Length[ii]))
     print()
 
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
-    for ii in range(No_reaches): # Total number of control volumes in each reach/ For now we have a constant discretization in each reach.
+    for ii in range(self.No_reaches): # Total number of control volumes in each reach/ For now we have a constant discretization in each reach.
       Temp       = self.File_Input.readline().split("\n")
-      Reach_Disc[ii] = int(Temp[0])
-      print(" No. of discretization of reach %d is: %f" % (ii+1, Reach_Disc[ii]))
+      self.Reach_Disc[ii] = int(Temp[0])
+      print(" No. of discretization of reach %d is: %f" % (ii+1, self.Reach_Disc[ii]))
     print()
 
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
-    for i in range(No_reaches): # Slope of each reach
+    for ii in range(self.No_reaches): # Slope of each reach
       Temp       = self.File_Input.readline().split("\n")
-      Reach_Slope[ii] = float(Temp[0])
-      print(" The slope of reach %d is: %f" % (ii+1, Reach_Slope[ii]))
+      self.Reach_Slope[ii] = float(Temp[0])
+      print(" The slope of reach %d is: %f" % (ii+1, self.Reach_Slope[ii]))
     print()
 
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
-    for ii in range(No_reaches): # The Manning's number for each reach
+    for ii in range(self.No_reaches): # The Manning's number for each reach
       Temp       = self.File_Input.readline().split("\n")
-      Reach_Manning[ii] = float(Temp[0])
-      print(" The Manning's no. for reach %d is: %f" % (ii+1, Reach_Manning[ii]))
+      self.Reach_Manning[ii] = float(Temp[0])
+      print(" The Manning's no. for reach %d is: %f" % (ii+1, self.Reach_Manning[ii]))
     print()
 
     Temp       = self.File_Input.readline().split("\n")
     Temp       = self.File_Input.readline().split("\n")
-    for ii in range(No_reaches): # The width of each reach
+    for ii in range(self.No_reaches): # The width of each reach
       Temp       = self.File_Input.readline().split("\n")
-      Reach_Width[ii] = float(Temp[0])
-      print(" The width of reach %d is: %f" % (ii+1, Reach_Width[ii]))
+      self.Reach_Width[ii] = float(Temp[0])
+      print(" The width of reach %d is: %f" % (ii+1, self.Reach_Width[ii]))
     print()
 
   # -- Class destructor
