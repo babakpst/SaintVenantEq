@@ -21,7 +21,7 @@ class Discretization:
     self.Experiment = Input_Class.Input_Info()
     print(" Discretization of the domain ...")
 
-  def discreization_func(self):
+#  def discreization_func(self):
     # -- Import libs/classes
     import numpy as np
     print(" Loop over reaches to discretize the domain ...")
@@ -70,6 +70,9 @@ class Discretization:
       self.Manning_Cell[Cell_Counter] = self.Experiment.Reach_Manning[ii]
       Cell_Counter += 1
       Max_Height   -= self.Experiment.Reach_Length[ii] * self.Experiment.Reach_Slope[ii]
+
+      self.Q_Up = self.Experiment.Q_Up
+      self.V_in = self.Experiment.V_in
   
     if self.N_Cells != Cell_Counter:
       sys.exit("FATAL ERROR: Mismatch between the number of cells! Check the Discretization_Class.")

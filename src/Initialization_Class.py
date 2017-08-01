@@ -14,22 +14,21 @@
 
 class Initialization:
 
-  import numpy as np
+
 
   def __init__(self):
     # -- Import libs/classes
+    import numpy as np
     import Discretization_Class
-    Disc = Discretization_Class.Discretization()
-    Var = Disc.discreization_func()
-
+    self.Disc = Discretization_Class.Discretization()
 
     print(" Initialization ...")
-    self.Q  = np.zeros( Var.N_Cells, dtype=np.float )
-    self.V  = np.zeros( Var.N_Cells, dtype=np.float )
+    self.Q  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+    self.V  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
     
-    for ii in range(Var.N_Cells):
-      self.Q[ii] = Var.Q_Up
-      self.V[ii] = Var.V_in
+    for ii in range( self.Disc.N_Cells ):
+      self.Q[ii] = self.Disc.Q_Up
+      self.V[ii] = self.Disc.V_in
 
   def Geometry_func(self, V, L): # Returns the cross-section area: A
     return V/L
