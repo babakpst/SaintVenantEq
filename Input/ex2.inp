@@ -1,6 +1,6 @@
 Input file for the SVE paper.
 
-Name: ex1 - based on the microprocessor paper.
+Name: ex2 - based on the second example in the microprocessor paper.
 
 Total run time (in seconds): 
 50
@@ -18,20 +18,28 @@ Initial control volume:
 20
 
 Total number of sections (slopes):
-1
+2
 
 Total Length (in meter) for each slope:
-5600
+378
+573
 
 Total number of segments for each slope:
-70
+31
+47
 
 Slope for each slope:
+5.0e-03
 2.5e-03
 
 Manning's number for each slope:
-0.0035
+2.5e-3
+1.5e-3
 
 Cross section widths of each slope (in meter, assumed to be rectangular for now) 
 6.096
+6.096
+
+
+
 
