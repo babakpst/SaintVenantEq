@@ -21,7 +21,7 @@ class Discretization:
     self.Experiment = Input_Class.Input_Info()
     print(" Discretization of the domain ...")
 
-  def discreization_func(self):
+#  def discreization_func(self):
     # -- Import libs/classes
     import numpy as np
     print(" Loop over reaches to discretize the domain ...")
@@ -43,6 +43,7 @@ class Discretization:
     self.Length_Cell  = np.zeros( self.N_Cells, dtype=np.float ) # Stores the length of each cell
     self.Z_Cell       = np.zeros( self.N_Cells, dtype=np.float ) # Stores bottom elevation of each cell
     self.Manning_Cell = np.zeros( self.N_Cells, dtype=np.float) # Stores the Manning's number of each cell
+    self.Width_Cell   = np.zeros( self.N_Cells, dtype=np.float) # Stores the Manning's number of each cell
 
     Cell_Counter = 0
 
@@ -61,6 +62,7 @@ class Discretization:
 
         self.Z_Cell[Cell_Counter]       = Height
         self.Manning_Cell[Cell_Counter] = self.Experiment.Reach_Manning[ii]
+        self.Width_Cell[Cell_Counter]   = self.Experiment.Reach_Width[ii]
         Cell_Counter += 1
       # The last cell: we need to separate the last cell in each reach to adjust the numerical error in the total length of the reach
       self.Length_Cell[Cell_Counter]  = self.Experiment.Reach_Length[ii] - Total_Length
@@ -70,6 +72,12 @@ class Discretization:
       self.Manning_Cell[Cell_Counter] = self.Experiment.Reach_Manning[ii]
       Cell_Counter += 1
       Max_Height   -= self.Experiment.Reach_Length[ii] * self.Experiment.Reach_Slope[ii]
+
+      self.Q_Up       = self.Experiment.Q_Up
+      self.V_in       = self.Experiment.V_in
+      self.Total_Time = self.Experiment.Total_Time
+      self.Time_Step  = self.Experiment.Time_Step
+      self.h_dw       = self.Experiment.h_dw
   
     if self.N_Cells != Cell_Counter:
       sys.exit("FATAL ERROR: Mismatch between the number of cells! Check the Discretization_Class.")

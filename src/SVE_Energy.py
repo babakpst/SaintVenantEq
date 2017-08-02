@@ -2,6 +2,7 @@
 #####################################################################
 # 
 # This code is based on the methodology described in the paper.
+# The code is based on Python 3.6, NumPy 1.12, and MatLibPlot.
 #
 # Code developed by: Dr. Babak Poursartip
 # Supervised by:     Dr. Ben R. Hodges
@@ -17,7 +18,9 @@
 # Import classes ==================================================================================
 #import Input_Class  --delete
 #import Discretization_Class
-import Initialization_Class
+#import Initialization_Class
+import Solver_Class
+import matplotlib as plt
 
 # Code begins =====================================================================================
 print(" -------- 1D Saint-Venant Equation based on the face reconstruction --------")
@@ -27,13 +30,12 @@ print()
 print(" Simulation starts ...")
 print()
 
-# Discretization ==================================================================================
-Ex = Initialization_Class.Initialization()
 
-# Initialization ==================================================================================
+Results = Solver_Class.Solver()
+#Results2=Results.RK2()
 
-
-
+print(" Simulation was conducted successfully. ")
+print()
 #def main():
 #    print('Hello, World!')
 #

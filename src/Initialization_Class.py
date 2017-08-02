@@ -14,22 +14,37 @@
 
 class Initialization:
 
-  import numpy as np
+
 
   def __init__(self):
     # -- Import libs/classes
+    import numpy as np
     import Discretization_Class
-    Disc = Discretization_Class.Discretization()
-    Var = Disc.discreization_func()
-
+    self.Disc = Discretization_Class.Discretization()
 
     print(" Initialization ...")
-    self.Q  = np.zeros( Var.N_Cells, dtype=np.float )
-    self.V  = np.zeros( Var.N_Cells, dtype=np.float )
+    self.Q  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+    self.V  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+    self.L  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+    self.Z  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+    self.M  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+    self.B  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+
+    self.Total_Time = self.Disc.Total_Time
+    self.Time_Step  = self.Disc.Time_Step
+    self.h_dw       = self.Disc.h_dw
+    self.Q_Up       = self.Disc.Q_Up
+    self.N_Cells    = self.Disc.N_Cells
+
+    self.L[:] = self.Disc.Length_Cell[:]
+    self.Z[:] = self.Disc.Z_Cell[ii]
+    self.M[:] = self.Disc.Manning_Cell[ii]
+    self.B[:] = self.Disc.Width_Cell[ii]
+
     
-    for ii in range(Var.N_Cells):
-      self.Q[ii] = Var.Q_Up
-      self.V[ii] = Var.V_in
+    for ii in range( self.Disc.N_Cells ):
+      self.Q[ii] = self.Disc.Q_Up
+      self.V[ii] = self.Disc.V_in
 
   def Geometry_func(self, V, L): # Returns the cross-section area: A
     return V/L
