@@ -47,9 +47,10 @@ class Solver:
     F    = np.zeros( N_Cells, dtype=np.float64 )
 
     V_0  = np.zeros( N_Cells, dtype=np.float64 )
-    E_0  = np.zeros( N_Cells, dtype=np.float64 )
     Q_0  = np.zeros( N_Cells, dtype=np.float64 )
+    E_0  = np.zeros( N_Cells, dtype=np.float64 )
     F_0  = np.zeros( N_Cells, dtype=np.float64 )
+    U_0  = np.zeros( N_Cells, dtype=np.float64 )
     E_F_0= np.zeros( N_Cells, dtype=np.float64 )
 
     #
@@ -119,7 +120,7 @@ class Solver:
           elif ii != 0 and ii != N_Cells: # middle cells
             A_F[ii]   = (L[ii+1]*A[ii]   + L[ii]*A[ii+1]   )/( L[ii+1] + L[ii] )
             Eta_F[ii] = (L[ii+1]*Eta[ii] + L[ii]*Eta[ii+1] )/( L[ii+1] + L[ii] )
-            E_F[ii]   = ( 1.0 / (V[ii]+V[ii+1]) ) * ( E_F_0[ii] *( V_0[ii] + V_0[ii+1] ) - E[ii]*V[ii] - E[ii+1]*V[ii+1] + E_0[ii]*V_0[ii] + E_0[ii+1]*V_0[ii+1] + DT * ( Q[ii] * E[ii] - Q[ii+1] * E[ii+1] - (1.0/2.0) * ( U[ii] * F[ii] + U[ii+1] * F[ii+1]  ) +      Q_0[ii] * E_0[ii] - Q_0[ii+1] * E_0[ii+1] - (1.0/2.0) * ( U_0[ii] * F_0[ii] + U_0[ii+1] * F_0[ii+1]  )   ) )
+            E_F[ii]   = ( 1.0 / (V[ii]+V[ii+1]) ) * ( E_F_0[ii] *( V_0[ii] + V_0[ii+1] ) - E[ii]*V[ii] - E[ii+1]*V[ii+1] + E_0[ii]*V_0[ii] + E_0[ii+1]*V_0[ii+1] + DT * ( Q[ii] * E[ii] - Q[ii+1] * E[ii+1] - (1.0/2.0) * ( U[ii] * F[ii] + U[ii+1] * F[ii+1]  ) + Q_0[ii] * E_0[ii] - Q_0[ii+1] * E_0[ii+1] - (1.0/2.0) * ( U_0[ii] * F_0[ii] + U_0[ii+1] * F_0[ii+1]  )   ) )
             U_F[ii]   = (2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
             Q_F[ii]   = A_F[ii] * U_F[ii]
           elif ii == N_Cells: # Boundary condition at face N+1/2
@@ -132,13 +133,13 @@ class Solver:
             E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
 
       for ii in range(N_Cells): # To find k1 in the Runge-Kutta method and find the solution at n+1/2
-        k_1V[ii]  = DT * ( Q_F[ii] - Q_F[ii+1] )
-        k_1Q[ii]  = (DT / L[ii]) * ( Q_F[ii] * U_F[ii] - Q_F[ii+1] * U_F[ii+1] + Gravity * A_F[ii]* Eta_F[ii] - Gravity * A_F[ii+1]* Eta_F[ii+1] -F[ii] )
+        k_1V[ii]  = DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
+        k_1Q[ii]  = (DT / L[ii]) * ( Q_F[ii] * U_F[ii] - Q_F[ii+1] * U_F[ii+1] + Gravity * A_F[ii]* Eta_F[ii] - Gravity * A_F[ii+1]* Eta_F[ii+1] -F[ii] ) # <modify> remove
         # Solution at "n+1/2"
         V_1[ii]   = V[ii] + 0.5* k_1V[ii]
         Q_1[ii]   = Q[ii] + 0.5* k_1Q[ii]  # <modify> We really don't need to define k_1v and k_1q, just for the clarity of the code.
 
-      for ii in range(N_Cells):
+      for ii in range(N_Cells):  # These are the variables at {n+1}
         A[ii]   = V_1[ii] / L[ii]
         U[ii]   = Q_1[ii] / A[ii]
         Eta[ii] = A[ii] / B[ii] + Z[ii]
@@ -151,14 +152,32 @@ class Solver:
       # 
       for ii in range(N_Cells+1):
         if ii==0: # Boundary condition at face 1/2
-          pass
+            A_F[ii]   = A[ii]
+            Eta_F[ii] = Eta[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
+            U_F[ii]   = Ex.Q_Up / A_F[ii]
+            E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
         elif ii != 1 and ii != N_Cells: # middle cells
-          pass
+            A_F[ii]   = (L[ii+1]*A[ii]   + L[ii]*A[ii+1]   )/( L[ii+1] + L[ii] )
+            Eta_F[ii] = (L[ii+1]*Eta[ii] + L[ii]*Eta[ii+1] )/( L[ii+1] + L[ii] )
+            # Temp: E_{i+1/2}^{n+1/2}
+            Temp   = ( 1.0 / (V_1[ii]+V_1[ii+1]) ) * ( E_F_0[ii] *( V_0[ii] + V_0[ii+1] ) - E[ii]*V[ii] - E[ii+1]*V[ii+1] + E_0[ii]*V_0[ii] + E_0[ii+1]*V_0[ii+1] + DT * ( Q[ii] * E[ii] - Q[ii+1] * E[ii+1] - (1.0/2.0) * ( U[ii] * F[ii] + U[ii+1] * F[ii+1]  ) +      Q_0[ii] * E_0[ii] - Q_0[ii+1] * E_0[ii+1] - (1.0/2.0) * ( U_0[ii] * F_0[ii] + U_0[ii+1] * F_0[ii+1]  )   ) )
+
+            U_F[ii]   = (2*(Temp - Gravity * Eta_F[ii] ) )**(0.5)
+            Q_F[ii]   = A_F[ii] * U_F[ii]          
         elif ii == N_Cells: # Boundary condition at face N+1/2
           pass
 
-      for ii in range(N_Cells+1): # To find k2 in the Runge-Kutta method.
-        pass
+      for ii in range(N_Cells+1): # To find k2 in the Runge-Kutta method and find the solution at n + 1
+        V_0  = V
+        Q_0  = Q
+        E_0  = E
+        F_0  = F
+        U_0  = U
+
+        k_2V =
+        k_2Q =
+        V = V + k_2V
+        Q = Q + k_2Q
 
       # Visualization
     # End loop on the time steps
