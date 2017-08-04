@@ -22,11 +22,14 @@ class Solver:
     Gravity = 9.81
     Draw = Visualization_Class.Visualization()
 
-    print(" Solving the DE ...")
-
   #def RK2(self):
-    print(" Second-order Runge-Kutta method: ...")
     Ex = Initialization_Class.Initialization()
+
+    print(" ========== Solver Class ==========")
+    print(" Solving the DE ...")
+    print(" Second-order Runge-Kutta method: ...")
+
+    print(" Allocating memory ...")
     N_Steps = int(Ex.Total_Time/Ex.Time_Step)
     N_Cells = Ex.N_Cells
     h_dw    = Ex.h_dw
@@ -47,6 +50,7 @@ class Solver:
     R_h  = np.zeros( N_Cells, dtype=np.float64 )
     C    = np.zeros( N_Cells, dtype=np.float64 )
     F    = np.zeros( N_Cells, dtype=np.float64 )
+    X    = np.zeros( N_Cells, dtype=np.float64 )
 
     V_0  = np.zeros( N_Cells, dtype=np.float64 )
     Q_0  = np.zeros( N_Cells, dtype=np.float64 )
@@ -64,6 +68,7 @@ class Solver:
     R_h_1 = np.zeros( N_Cells, dtype=np.float64 )
     F_1   = np.zeros( N_Cells, dtype=np.float64 )
     C_1   = np.zeros( N_Cells, dtype=np.float64 )
+    U_1   = np.zeros( N_Cells, dtype=np.float64 )
 
     #
     A_F   = np.zeros( N_Cells+1, dtype=np.float64 )
@@ -78,6 +83,7 @@ class Solver:
     k_2Q  = np.zeros( N_Cells, dtype=np.float64 ) # <modify> remove this array
 
     # Initialization 
+    print(" Initialization ... ")
     Q[:] = Ex.Q[:]
     V[:] = Ex.V[:]
     L[:] = Ex.L[:]
@@ -86,8 +92,13 @@ class Solver:
     B[:] = Ex.B[:]
     X[:] = Ex.X[:]
 
+    print(" Time marching ... ")
     for nn in range(N_Steps):
       print(" Time step: %d out of %d " % (nn, N_Steps))
+      # <delete>
+      print("n")
+      print(V)
+      print(Q)
 
       for ii in range(N_Cells):
         A[ii]   = V[ii] / L[ii]
@@ -96,22 +107,24 @@ class Solver:
         E[ii]   = ((U[ii])**2) /2 +  Gravity*Eta[ii]
         l_P[ii] = B[ii] + 2 * Eta[ii]
         R_h[ii] = A[ii] / l_P[ii]
-        C[ii]   = ((Eta[ii])**2) / ((R_h[ii])**(4/3))
+        C[ii]   = ((Eta[ii])**2) / ((R_h[ii])**(4.0/3.0))
         F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
 
       # Face reconstruction
       # Important comment: The size of the face arrays (..._F) are "N_Cells + 1". Face i+1/2 is indicated by index i. For example, face 1/2 is ..._F[0], face 1+1/2 is ..._F[1]
+
       if nn == 0:
         for ii in range(N_Cells+1):
           if ii==0: # Boundary condition at face 1/2
             A_F[ii]   = A[ii] # This means A_(1/2) = A_1
             Eta_F[ii] = Eta[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
-            U_F[ii]   = Ex.Q_Up / A_F[ii]
             E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
-          elif ii != 0 and ii != N_Cells: # middle cells
-            A_F[ii]   = (L[ii+1]*A[ii]   + L[ii]*A[ii+1]   )/( L[ii+1] + L[ii] )
-            Eta_F[ii] = (L[ii+1]*Eta[ii] + L[ii]*Eta[ii+1] )/( L[ii+1] + L[ii] )
-            E_F[ii]   = (L[ii+1]*E[ii]   + L[ii]*E[ii+1]   )/( L[ii+1] + L[ii] )
+            U_F[ii]   = Ex.Q_Up / A_F[ii]
+            Q_F[ii]   = A_F[ii] * U_F[ii]            
+          elif ii != 0 and ii != N_Cells: # middle cells - The subtraction is due to the fact that Python numbering is starting from 0
+            A_F[ii]   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
+            Eta_F[ii] = (L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] )/( L[ii] + L[ii-1] )
+            E_F[ii]   = (L[ii]*  E[ii-1] + L[ii-1]*  E[ii] )/( L[ii] + L[ii-1] )
             U_F[ii]   = (2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
             Q_F[ii]   = A_F[ii] * U_F[ii]
           elif ii == N_Cells: # Boundary condition at face N+1/2
@@ -129,10 +142,14 @@ class Solver:
             Eta_F[ii] = Eta[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
             U_F[ii]   = Ex.Q_Up / A_F[ii]
             E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
+            Q_F[ii]   = A_F[ii] * U_F[ii]            
           elif ii != 0 and ii != N_Cells: # middle cells
-            A_F[ii]   = (L[ii+1]*A[ii]   + L[ii]*A[ii+1]   )/( L[ii+1] + L[ii] )
-            Eta_F[ii] = (L[ii+1]*Eta[ii] + L[ii]*Eta[ii+1] )/( L[ii+1] + L[ii] )
-            E_F[ii]   = ( 1.0 / (V[ii]+V[ii+1]) ) * ( E_F_0[ii] *( V_0[ii] + V_0[ii+1] ) - E[ii]*V[ii] - E[ii+1]*V[ii+1] + E_0[ii]*V_0[ii] + E_0[ii+1]*V_0[ii+1] + DT * ( Q[ii] * E[ii] - Q[ii+1] * E[ii+1] - (1.0/2.0) * ( U[ii] * F[ii] + U[ii+1] * F[ii+1]  ) + Q_0[ii] * E_0[ii] - Q_0[ii+1] * E_0[ii+1] - (1.0/2.0) * ( U_0[ii] * F_0[ii] + U_0[ii+1] * F_0[ii+1]  )   ) )
+            A_F[ii]   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
+            Eta_F[ii] = ( L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] ) / ( L[ii] + L[ii-1] )
+            E_F[ii]   = ( 1.0 / (V[ii-1]+V[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E[ii-1]*V[ii-1] - E[ii]*V[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
+            # <delete>
+            print(E_F[ii])
+            print(Eta_F[ii])
             U_F[ii]   = (2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
             Q_F[ii]   = A_F[ii] * U_F[ii]
           elif ii == N_Cells: # Boundary condition at face N+1/2
@@ -151,6 +168,10 @@ class Solver:
         V_1[ii]   = V[ii] + 0.5* k_1V[ii]
         Q_1[ii]   = Q[ii] + 0.5* k_1Q[ii]  # <modify> We really don't need to define k_1v and k_1q, just for the clarity of the code.
 
+      print("n+1/2")
+      print(V_1)
+      print(Q_1)
+
       for ii in range(N_Cells):  # These are the variables at {n+1}
         A_1[ii]   = V_1[ii] / L[ii]
         U_1[ii]   = Q_1[ii] / A_1[ii]
@@ -158,10 +179,9 @@ class Solver:
         E_1[ii]   = ((U_1[ii])**2) /2 +  Gravity*Eta_1[ii]
         l_P_1[ii] = B[ii] + 2 * Eta_1[ii]  # <modify>
         R_h_1[ii] = A_1[ii] / l_P_1[ii] # <modify>
-        C_1[ii]   = ((Eta_1[ii])**2) / ((R_h_1[ii])**(4/3)) # <modify>
+        C_1[ii]   = ((Eta_1[ii])**2) / ((R_h_1[ii])**(4.0/3.0)) # <modify>
         F_1[ii]   = Gravity * C_1[ii] * V_1[ii] * ((U_1[ii])**2)
 
-      # 
       for ii in range(N_Cells+1):
         if ii==0: # Boundary condition at face 1/2
           A_F[ii]   = A[ii]
@@ -169,10 +189,10 @@ class Solver:
           U_F[ii]   = Ex.Q_Up / A_F[ii]
           E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
         elif ii != 1 and ii != N_Cells: # middle cells
-          A_F[ii]   = (L[ii+1]*A[ii]   + L[ii]*A[ii+1]   )/( L[ii+1] + L[ii] )
-          Eta_F[ii] = (L[ii+1]*Eta[ii] + L[ii]*Eta[ii+1] )/( L[ii+1] + L[ii] )
+          A_F[ii]   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
+          Eta_F[ii] = (L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] )/( L[ii] + L[ii-1] )
           # Temp: E_{i+1/2}^{n+1/2}
-          Temp   = ( 1.0 / (V_1[ii]+V_1[ii+1]) ) * ( E_F[ii] *( V[ii] + V[ii+1] ) - E_1[ii]*V_1[ii] - E_1[ii+1]*V_1[ii+1] + E[ii]*V[ii] + E[ii+1]*V[ii+1] + DT * ( Q_1[ii] * E_1[ii] - Q_1[ii+1] * E_1[ii+1] - (1.0/2.0) * ( U_1[ii] * F_1[ii] + U_1[ii+1] * F_1[ii+1]  ) + Q[ii] * E[ii] - Q[ii+1] * E[ii+1] - (1.0/2.0) * ( U[ii] * F[ii] + U[ii+1] * F[ii+1]  )   ) )
+          Temp   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F[ii] *( V[ii-1] + V[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E[ii-1]*V[ii-1] + E[ii]*V[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  )   ) )
           U_F[ii]   = ( 2*(Temp - Gravity * Eta_F[ii] ) )**(0.5)
           Q_F[ii]   = A_F[ii] * U_F[ii]          
         elif ii == N_Cells: # Boundary condition at face N+1/2
@@ -194,9 +214,12 @@ class Solver:
 
         k_2V[ii]  = DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
         k_2Q[ii]  = (DT / L[ii]) * ( Q_F[ii] * U_F[ii] - Q_F[ii+1] * U_F[ii+1] + Gravity * A_F[ii]* Eta_F[ii] - Gravity * A_F[ii+1]* Eta_F[ii+1] -F[ii] ) # <modify> remove
+
         V[ii] = V[ii] + k_2V[ii]
         Q[ii] = Q[ii] + k_2Q[ii]
 
-      Draw.Plot(N_Cells, X, Eta, "Water elevation")
+      Draw.Plot(N_Cells, X, Eta,  Z, "Water elevation")
     # End loop on the time steps
 
+    print(" ========== Solver Class ==========")
+    print()
