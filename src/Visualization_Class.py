@@ -18,20 +18,25 @@ class Visualization:
     pass
 
   def Plot(self, N, X, Y, Z, T):
+    import numpy as np
     import matplotlib.pyplot as plt
+
+    print()
+    print(" This is visualization ")
+    print()
 
     X_Arr = np.zeros(N, dtype = np.float64)
     Y_Arr = np.zeros(N, dtype = np.float64)
     Z_Arr = np.zeros(N, dtype = np.float64)
 
     Title     = T
-    X_Plot[:] = X[:]
-    Y_Plot[:] = Y[:]
-    Z_Plot[:] = Z[:]
+    X_Arr[:] = X[:]
+    Y_Arr[:] = Y[:]
+    Z_Arr[:] = Z[:]
 
     plt.Figure(figsize=(35,15) )
-    plt.plot(X_Plot, Y_Plot, label ="Water elevation" , color = "c")
-    plt.plot(X_Plot, Z_Plot, label ="Bottom elevation" , color = "r")
+    plt.plot(X_Arr, Y_Arr, label ="Water elevation" , color = "c")
+    plt.plot(X_Arr, Z_Arr, label ="Bottom elevation" , color = "r")
 
     plt.title(Title, fontsize = 16)
     plt.xlabel("X label", fontsize=12)

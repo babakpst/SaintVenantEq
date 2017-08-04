@@ -22,14 +22,18 @@ class Initialization:
     import Discretization_Class
     self.Disc = Discretization_Class.Discretization()
 
+    print(" ========== Initialization Class ==========")
+
     print(" Initialization ...")
+
     self.Q  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
     self.V  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
     self.L  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
     self.Z  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
     self.M  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
     self.B  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-
+    self.X  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+    
     self.Total_Time = self.Disc.Total_Time
     self.Time_Step  = self.Disc.Time_Step
     self.h_dw       = self.Disc.h_dw
@@ -40,11 +44,14 @@ class Initialization:
     self.Z[:] = self.Disc.Z_Cell[:]
     self.M[:] = self.Disc.Manning_Cell[:]
     self.B[:] = self.Disc.Width_Cell[:]
-    self.X[:] = self.Disc..X_Disc[:]
-   
+    self.X[:] = self.Disc.X_Disc[:]
+
     for ii in range( self.Disc.N_Cells ):
       self.Q[ii] = self.Disc.Q_Up
       self.V[ii] = self.Disc.V_in
+
+    print(" ========== Initialization Class Ends. ==========")
+    print()
 
 # <modify> Use geometry function and elevation functino, instead of direct definition in the solver function, to make the code a more general one. 
 #  def Geometry_func(self, V, L): # Returns the cross-section area: A

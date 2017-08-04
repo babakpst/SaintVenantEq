@@ -23,6 +23,7 @@ import Solver_Class
 import matplotlib as plt
 
 # Code begins =====================================================================================
+print()
 print(" -------- 1D Saint-Venant Equation based on the face reconstruction --------")
 print(" ---------- Developers:: Babak Poursartip/Ben R. Hodges/Frank Liu ----------")
 print()
