@@ -37,17 +37,18 @@ class Initialization:
     self.N_Cells    = self.Disc.N_Cells
 
     self.L[:] = self.Disc.Length_Cell[:]
-    self.Z[:] = self.Disc.Z_Cell[ii]
-    self.M[:] = self.Disc.Manning_Cell[ii]
-    self.B[:] = self.Disc.Width_Cell[ii]
-
-    
+    self.Z[:] = self.Disc.Z_Cell[:]
+    self.M[:] = self.Disc.Manning_Cell[:]
+    self.B[:] = self.Disc.Width_Cell[:]
+    self.X[:] = self.Disc..X_Disc[:]
+   
     for ii in range( self.Disc.N_Cells ):
       self.Q[ii] = self.Disc.Q_Up
       self.V[ii] = self.Disc.V_in
 
-  def Geometry_func(self, V, L): # Returns the cross-section area: A
-    return V/L
+# <modify> Use geometry function and elevation functino, instead of direct definition in the solver function, to make the code a more general one. 
+#  def Geometry_func(self, V, L): # Returns the cross-section area: A
+#    return V/L
 
-  def Elevation_func(self, A, B , Z):  # Returns the free surface elevation: eta
-    return A/B + Z
+#  def Elevation_func(self, A, B , Z):  # Returns the free surface elevation: eta
+#    return A/B + Z
