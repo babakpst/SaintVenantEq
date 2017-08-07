@@ -96,9 +96,9 @@ class Solver:
     for nn in range(N_Steps):
       print(" Time step: %d out of %d " % (nn, N_Steps))
       # <delete>
-      print("n")
-      print(V)
-      print(Q)
+      #print("n")
+      #print(V)
+      #print(Q)
 
       for ii in range(N_Cells):
         A[ii]   = V[ii] / L[ii]
@@ -107,7 +107,7 @@ class Solver:
         E[ii]   = ((U[ii])**2) /2 +  Gravity*Eta[ii]
         l_P[ii] = B[ii] + 2 * Eta[ii]
         R_h[ii] = A[ii] / l_P[ii]
-        C[ii]   = ((Eta[ii])**2) / ((R_h[ii])**(4.0/3.0))
+        C[ii]   = ((M[ii])**2) / ((R_h[ii])**(4.0/3.0))
         F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
 
       # Face reconstruction
@@ -148,8 +148,8 @@ class Solver:
             Eta_F[ii] = ( L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] ) / ( L[ii] + L[ii-1] )
             E_F[ii]   = ( 1.0 / (V[ii-1]+V[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E[ii-1]*V[ii-1] - E[ii]*V[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
             # <delete>
-            print(E_F[ii])
-            print(Eta_F[ii])
+            #print(E_F[ii])
+            #print(Eta_F[ii])
             U_F[ii]   = (2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
             Q_F[ii]   = A_F[ii] * U_F[ii]
           elif ii == N_Cells: # Boundary condition at face N+1/2
@@ -168,9 +168,10 @@ class Solver:
         V_1[ii]   = V[ii] + 0.5* k_1V[ii]
         Q_1[ii]   = Q[ii] + 0.5* k_1Q[ii]  # <modify> We really don't need to define k_1v and k_1q, just for the clarity of the code.
 
-      print("n+1/2")
-      print(V_1)
-      print(Q_1)
+      #print("n+1/2")
+      #print(V_1)
+      #print(Q_1)
+      #print()
 
       for ii in range(N_Cells):  # These are the variables at {n+1}
         A_1[ii]   = V_1[ii] / L[ii]
@@ -179,7 +180,7 @@ class Solver:
         E_1[ii]   = ((U_1[ii])**2) /2 +  Gravity*Eta_1[ii]
         l_P_1[ii] = B[ii] + 2 * Eta_1[ii]  # <modify>
         R_h_1[ii] = A_1[ii] / l_P_1[ii] # <modify>
-        C_1[ii]   = ((Eta_1[ii])**2) / ((R_h_1[ii])**(4.0/3.0)) # <modify>
+        C_1[ii]   = ((M[ii])**2) / ((R_h_1[ii])**(4.0/3.0)) # <modify>
         F_1[ii]   = Gravity * C_1[ii] * V_1[ii] * ((U_1[ii])**2)
 
       for ii in range(N_Cells+1):
@@ -218,7 +219,15 @@ class Solver:
         V[ii] = V[ii] + k_2V[ii]
         Q[ii] = Q[ii] + k_2Q[ii]
 
-      Draw.Plot(N_Cells, X, Eta,  Z, "Water elevation")
+      #print("n+1")
+      #print(V)
+      #print(Q)
+      #print()
+
+      if (nn%100) == 0:
+        RealTime = nn*DT
+        TITLE = "Water elevation at time :" + str(RealTime)
+        Draw.Plot(N_Cells, X, Eta,  Z, TITLE)
     # End loop on the time steps
 
     print(" ========== Solver Class ==========")
