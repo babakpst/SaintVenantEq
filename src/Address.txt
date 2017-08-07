@@ -6,3 +6,18 @@ Input directory:
 
 Output directory:
 /data2/Babak/MyDocuments/Codes/GitHub/SVE_Energy/Output
+
+
+
+
+Input directory:
+C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\SVE_Energy\input
+
+Output directory:
+C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\SVE_Energy\output
+
+
+
+
+
+

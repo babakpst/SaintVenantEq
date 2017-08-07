@@ -39,8 +39,8 @@ class Visualization:
     plt.plot(X_Arr, Z_Arr, label ="Bottom elevation" , color = "r")
 
     plt.title(Title, fontsize = 16)
-    plt.xlabel("X label", fontsize=12)
-    plt.ylabel("Y label", fontsize=12)
+    plt.xlabel("Distance (m)", fontsize=12)
+    plt.ylabel("Elevation (m)", fontsize=12)
 
     plt.legend(loc=0)
     plt.show()    
