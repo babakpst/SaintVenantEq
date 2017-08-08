@@ -4,11 +4,13 @@
 # This code is based on the methodology described in the paper.
 # The code is based on Python 3.6, NumPy 1.12, and MatLibPlot.
 #
+# 
+# 
 # Code developed by: Dr. Babak Poursartip
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/18/2017
-# Latest update: 07/25/2017
+# Latest update: 08/08/2017
 #
 #####################################################################
 
