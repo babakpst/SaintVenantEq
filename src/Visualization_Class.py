@@ -22,7 +22,7 @@ class Visualization:
     import matplotlib.pyplot as plt
 
     print()
-    print(" This is visualization ")
+    print(" This is the visualization class")
     print()
 
     X_Arr = np.zeros(N, dtype = np.float64)
