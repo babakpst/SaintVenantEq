@@ -135,7 +135,10 @@ class Solver:
             Z_N1      = Z[ii-1] - Delta_Z
             Eta_F[ii] = h_dw
             A_F[ii]   = (Eta_F[ii] - Z_N1 ) * B[ii-1]
-            Q_F[ii]   = (1.0/M[ii-1]) * A[ii-1] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )
+            if Eta[ii-1]<Eta_F[ii]:
+                print(" Fatal error: Downstream boundary condition: %d , %d , %f , %f" % (ii,nn,Eta[ii-1],Eta_F[ii]))    
+                sys.exit()
+            Q_F[ii]   = (1.0/M[ii-1]) * A_F[ii] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) ) # <modify>
             U_F[ii]   = Q_F[ii] / A_F[ii]
             E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
       elif nn != 0:     #   hereeeeeeeeeeeeeeeeeeeeeeeeee
@@ -160,7 +163,10 @@ class Solver:
             Z_N1      = Z[ii-1] - Delta_Z
             Eta_F[ii] = h_dw
             A_F[ii]   = (Eta_F[ii] - Z_N1 ) * B[ii-1]
-            Q_F[ii]   = (1.0/M[ii-1]) * A[ii-1] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )
+            if Eta[ii-1]<Eta_F[ii]:
+                print(" Fatal error: Downstream boundary condition: %d , %d , %f , %f" % (ii,nn,Eta[ii-1],Eta_F[ii]))    
+                sys.exit()
+            Q_F[ii]   = (1.0/M[ii-1]) * A_F[ii] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )
             U_F[ii]   = Q_F[ii] / A_F[ii]
             E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
 
@@ -188,13 +194,13 @@ class Solver:
 
       for ii in range(N_Cells+1):
         if ii==0: # Boundary condition at face 1/2
-          A_F[ii]   = A[ii]
-          Eta_F[ii] = Eta[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
+          A_F[ii]   = A_1[ii]
+          Eta_F[ii] = Eta_1[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
           U_F[ii]   = Ex.Q_Up / A_F[ii]
           E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
         elif ii != 1 and ii != N_Cells: # middle cells
-          A_F[ii]   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
-          Eta_F[ii] = (L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] )/( L[ii] + L[ii-1] )
+          A_F[ii]   = (L[ii]*  A_1[ii-1] + L[ii-1]*  A_1[ii] )/( L[ii] + L[ii-1] )
+          Eta_F[ii] = (L[ii]*Eta_1[ii-1] + L[ii-1]*Eta_1[ii] )/( L[ii] + L[ii-1] )
           # Temp: E_{i+1/2}^{n+1/2}
           Temp   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F[ii] *( V[ii-1] + V[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E[ii-1]*V[ii-1] + E[ii]*V[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  )   ) )
           if (Temp - Gravity * Eta_F[ii]) < 0:
@@ -207,7 +213,10 @@ class Solver:
           Z_N1      = Z[ii-1] - Delta_Z
           Eta_F[ii] = h_dw
           A_F[ii]   = (Eta_F[ii] - Z_N1 ) * B[ii-1]
-          Q_F[ii]   = (1.0/M[ii-1]) * A[ii-1] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )
+          if Eta[ii-1]<Eta_F[ii]:
+              print(" Fatal error: Downstream boundary condition: %d , %d , %f , %f" % (ii,nn,Eta_1[ii-1],Eta_F[ii]))    
+              sys.exit()
+          Q_F[ii]   = (1.0/M[ii-1]) * A_F[ii] * ((R_h_1[ii-1])**(2.0/3.0))  * ( ( (Eta_1[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )  # <modify>
           U_F[ii]   = Q_F[ii] / A_F[ii]
           E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
 
@@ -230,7 +239,7 @@ class Solver:
       #print(Q)
       #print()
 
-      if (nn%10000) == 0:
+      if (nn%100) == 0:
         RealTime = nn*DT
         TITLE = "Water elevation at time :" + str(RealTime)
         Draw.Plot(N_Cells, X, Eta,  Z, TITLE)
