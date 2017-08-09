@@ -1,12 +1,11 @@
 
-
 #####################################################################
 #
 # Code developed by: Dr. Babak Poursartip
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    08/03/2017
-# Latest update: 08/03/2017
+# Latest update: 08/08/2017
 #
 # Comment: This class visualizes the results using matplotlib
 #
@@ -17,14 +16,15 @@ class Visualization:
   def __init__(self):
     pass
 
+
+
+
   def Plot(self, N, X, Y, Z, T):
     import numpy as np
     import matplotlib.pyplot as plt
 
-    print()
     print(" This is the visualization class")
-    print()
-
+    
     X_Arr = np.zeros(N, dtype = np.float64)
     Y_Arr = np.zeros(N, dtype = np.float64)
     Z_Arr = np.zeros(N, dtype = np.float64)
@@ -43,4 +43,4 @@ class Visualization:
     plt.ylabel("Elevation (m)", fontsize=12)
 
     plt.legend(loc=0)
-    plt.show()    
+    plt.show() # <modify> See why the execution stops when the the command gets here. 
