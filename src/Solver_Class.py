@@ -95,6 +95,13 @@ class Solver:
     B[:] = Ex.B[:]
     X[:] = Ex.X[:]
 
+    TITLE = "Initial Water Flow"
+    Draw.Plot(N_Cells, X, Q,  Z, TITLE)
+    print(V)
+
+    TITLE = "Initial Control Volume"
+    Draw.Plot(N_Cells, X, V,  Z, TITLE)
+
     print(" Time marching ... ")
     for nn in range(N_Steps):
       print(" Time step: %d out of %d " % (nn, N_Steps))
@@ -112,6 +119,12 @@ class Solver:
         R_h[ii] = A[ii] / l_P[ii]
         C[ii]   = ((M[ii])**2) / ((R_h[ii])**(4.0/3.0))
         F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
+
+      TITLE = "Initial Water level"
+      Draw.Plot(N_Cells, X, Eta,  Z, TITLE)
+
+      TITLE = "Initial Energy"
+      Draw.Plot(N_Cells, X, E,  Z, TITLE)
 
       # Face reconstruction
       # Important comment: The size of the face arrays (..._F) are "N_Cells + 1". Face i+1/2 is indicated by index i. For example, face 1/2 is ..._F[0], face 1+1/2 is ..._F[1]
@@ -154,7 +167,7 @@ class Solver:
             Eta_F[ii] = ( L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] ) / ( L[ii] + L[ii-1] )
             E_F[ii]   = ( 1.0 / (V[ii-1]+V[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E[ii-1]*V[ii-1] - E[ii]*V[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
             if (E_F[ii] - Gravity * Eta_F[ii]) < 0:
-              print(" Fatal Error: %d, %d, %f, %f" % (ii, nn, E_F[ii], Gravity * Eta_F[ii] ))
+              print(" Fatal Error in Energy: %d, %d, %f, %f" % (ii, nn, E_F[ii], Gravity * Eta_F[ii] ))
               sys.exit()
             U_F[ii]   = (2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
             Q_F[ii]   = A_F[ii] * U_F[ii]
@@ -204,7 +217,7 @@ class Solver:
           # Temp: E_{i+1/2}^{n+1/2}
           Temp   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F[ii] *( V[ii-1] + V[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E[ii-1]*V[ii-1] + E[ii]*V[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  )   ) )
           if (Temp - Gravity * Eta_F[ii]) < 0:
-            print(" Fatal Error: temp %d, %d, %f, %f" % (ii, nn, Temp, Gravity * Eta_F[ii] ))
+            print(" Fatal Error in energy at n+half: temp %d, %d, %f, %f" % (ii, nn, Temp, Gravity * Eta_F[ii] ))
             sys.exit()
           U_F[ii]   = ( 2*(Temp - Gravity * Eta_F[ii] ) )**(0.5)
           Q_F[ii]   = A_F[ii] * U_F[ii]          

@@ -99,17 +99,17 @@ class Discretization:
   
 
     # <delete> This part is for debugging purposes:
-    print(" Debugging section ...")
-    print(" X Coordinate: ")
-    print(self.X_Disc)
-    print(" Cell Length: ")
-    print(self.Length_Cell)
-    print(" Z Coordinate: ")
-    print(self.Z_Cell)
-    print(" Manning: ")
-    print(self.Manning_Cell)
-    print(" Width: ")
-    print(self.Width_Cell)
+    #print(" Debugging section ...")
+    #print(" X Coordinate: ")
+    #print(self.X_Disc)
+    #print(" Cell Length: ")
+    #print(self.Length_Cell)
+    #print(" Z Coordinate: ")
+    #print(self.Z_Cell)
+    #print(" Manning: ")
+    #print(self.Manning_Cell)
+    #print(" Width: ")
+    #print(self.Width_Cell)
 
     if self.N_Cells != Cell_Counter:
       sys.exit("FATAL ERROR: Mismatch between the number of cells! Check the Discretization_Class.")
