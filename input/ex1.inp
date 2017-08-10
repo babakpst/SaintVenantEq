@@ -3,19 +3,19 @@ Input file for the SVE paper.
 Name: ex1 - based on the microprocessor paper.
 
 Total run time (in seconds): 
-500
+500000
 
 Time step (in seconds):
-0.1 
+0.01 
 
-Upstream boundary condition, constant flow (m^3/s):
-14.1584
+Upstream boundary condition, constant flow (m^3/s):  14.1584
+5.0
 
 Downstream water depth (in meters):
 1.524
 
 Initial control volume:
-260
+300
 
 Total number of sections (slopes):
 1
