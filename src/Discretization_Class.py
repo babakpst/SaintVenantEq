@@ -12,6 +12,7 @@ class Discretization:
     def __init__(self):
         # -- Import libs/classes
         import Input_Class
+        import numpy as np
 
         # Reading data from the input file 
         self.Experiment = Input_Class.Input_Info()
@@ -19,9 +20,6 @@ class Discretization:
         print(" ========== Discretization Class ==========")
         print(" Discretization of the domain ...")
 
-    #  def discreization_func(self):
-        # -- Import libs/classes
-        import numpy as np
         print(" Loop over reaches to discretize the domain ...")
 
         # Find total number of cells in the domain:
@@ -44,9 +42,11 @@ class Discretization:
 
         self.Length_Cell  = np.zeros(self.N_Cells, dtype=np.float) # Stores the length of each cell
         self.Z_Cell       = np.zeros(self.N_Cells, dtype=np.float) # Stores bottom elevation of each cell
+        self.Z_Full       = np.zeros(self.N_Cells*2+1, dtype=np.float) # Stores bottom elevation of each cell
         self.Manning_Cell = np.zeros(self.N_Cells, dtype=np.float) # Stores the Manning's number of each cell
         self.Width_Cell   = np.zeros(self.N_Cells, dtype=np.float) # Stores the Manning's number of each cell
         self.X_Disc       = np.zeros(self.N_Cells, dtype=np.float) # Stores the Manning's number of each cell
+        self.X_Full       = np.zeros(self.N_Cells*2+1, dtype=np.float) # Stores the Manning's number of each cell
 
         print(" Basic calculations ...")
         Cell_Counter = 0
@@ -66,11 +66,15 @@ class Discretization:
             for jj in range( self.Experiment.Reach_Disc[ii] - 1 ):
                 self.Length_Cell[Cell_Counter]  = CntrlVolume_Length
                 self.X_Disc[Cell_Counter]       = X_distance
+                self.X_Full[Cell_Counter*2]     = X_distance - 0.5 * CntrlVolume_Length
+                self.X_Full[Cell_Counter*2+1]   = X_distance
                 X_distance                     += CntrlVolume_Length
                 Total_Length                   += CntrlVolume_Length
                 Height                         -= Z_loss
 
                 self.Z_Cell[Cell_Counter]       = Height
+                self.Z_Full[Cell_Counter*2]     = Height +0.5 * Z_loss
+                self.Z_Full[Cell_Counter*2+1]   = Height
                 self.Manning_Cell[Cell_Counter] = self.Experiment.Reach_Manning[ii]
                 self.Width_Cell[Cell_Counter]   = self.Experiment.Reach_Width[ii]
                 Cell_Counter += 1
@@ -78,10 +82,16 @@ class Discretization:
             # The last cell: we need to separate the last cell in each reach to adjust the numerical error in the total length of the reach
             self.Length_Cell[Cell_Counter]  = self.Experiment.Reach_Length[ii] - Total_Length
             X_distance                      = X_distance - 0.5 * CntrlVolume_Length + 0.5 * self.Length_Cell[Cell_Counter]
-            self.X_Disc[Cell_Counter]       =  X_distance  
+            self.X_Disc[Cell_Counter]       = X_distance  
+            self.X_Disc[Cell_Counter*2]     = X_distance - 0.5 * self.Length_Cell[Cell_Counter]
+            self.X_Disc[Cell_Counter*2+1]   = X_distance  
+            self.X_Disc[Cell_Counter*2+2]   = X_distance + 0.5 * self.Length_Cell[Cell_Counter] 
             Height                         -= ( 0.5*Z_loss + 0.5 * self.Length_Cell[Cell_Counter] * self.Experiment.Reach_Slope[ii] )
 
-            self.Z_Cell[Cell_Counter]       = Height
+            self.Z_Cell[Cell_Counter]       = Heiht 
+            self.Z_Full[Cell_Counter*2]     = Heiht + 0.5 * self.Length_Cell[Cell_Counter] * self.Experiment.Reach_Slope[ii]
+            self.Z_Full[Cell_Counter*2+1]   = Heiht 
+            self.Z_Full[Cell_Counter*2+2]   = Heiht - 0.5 * self.Length_Cell[Cell_Counter] * self.Experiment.Reach_Slope[ii]
             self.Manning_Cell[Cell_Counter] = self.Experiment.Reach_Manning[ii]
             self.Width_Cell[Cell_Counter]   = self.Experiment.Reach_Width[ii]
             Cell_Counter += 1
@@ -93,20 +103,6 @@ class Discretization:
         self.Time_Step  = self.Experiment.Time_Step
         self.h_dw       = self.Experiment.h_dw
       
-
-        # <delete> This part is for debugging purposes:
-        #print(" Debugging section ...")
-        #print(" X Coordinate: ")
-        #print(self.X_Disc)
-        #print(" Cell Length: ")
-        #print(self.Length_Cell)
-        #print(" Z Coordinate: ")
-        #print(self.Z_Cell)
-        #print(" Manning: ")
-        #print(self.Manning_Cell)
-        #print(" Width: ")
-        #print(self.Width_Cell)
-
         if self.N_Cells != Cell_Counter:
             sys.exit("FATAL ERROR: Mismatch between the number of cells! Check the Discretization_Class.")
           
