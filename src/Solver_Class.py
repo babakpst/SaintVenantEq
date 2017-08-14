@@ -98,10 +98,6 @@ class Solver:
         print(" Time marching ... ")
         for nn in range(N_Steps):
             print(" Time step: %d out of %d " % (nn, N_Steps))
-            # <delete>
-            #print("n")
-            #print(V)
-            #print(Q)
 
             for ii in range(N_Cells):
                 A[ii]   = V[ii] / L[ii]
@@ -113,13 +109,11 @@ class Solver:
                 C[ii]   = ((M[ii])**2) / ((R_h[ii])**(4.0/3.0))
                 F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
 
-
-
             # <delete>
-
-            #RealTime = nn*DT
-            #TITLE = " at time: " + str(RealTime)
-            #Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
+            RealTime = nn*DT
+            TITLE = " at time: " + str(RealTime)
+            Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
+            
             # Face reconstruction
             # Important comment: The size of the face arrays (..._F) are "N_Cells + 1". Face i+1/2 is indicated by index i. For example, face 1/2 is ..._F[0], face 1+1/2 is ..._F[1]
             #Rlts    = open("Results.txt","w")
@@ -191,17 +185,13 @@ class Solver:
                     U_F[ii]   = Q_F[ii] / A_F[ii]
                     E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
 
+
             for ii in range(N_Cells): # To find k1 in the Runge-Kutta method and find the solution at n+1/2
               k_1V[ii]  = DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
               k_1Q[ii]  = (DT / L[ii]) * ( Q_F[ii] * U_F[ii] - Q_F[ii+1] * U_F[ii+1] + Gravity * A_F[ii]* Eta_F[ii] - Gravity * A_F[ii+1]* Eta_F[ii+1] -F[ii] ) # <modify> remove
               # Solution at "n+1/2"
               V_1[ii]   = V[ii] + 0.5* k_1V[ii]
               Q_1[ii]   = Q[ii] + 0.5* k_1Q[ii]  # <modify> We really don't need to define k_1v and k_1q, just for the clarity of the code.
-
-            #print("n+1/2")
-            #print(V_1)
-            #print(Q_1)
-            #print()
 
             for ii in range(N_Cells):  # These are the variables at {n+1}
               A_1[ii]   = V_1[ii] / L[ii]
@@ -256,10 +246,6 @@ class Solver:
               V[ii] = V[ii] + k_2V[ii]
               Q[ii] = Q[ii] + k_2Q[ii]
 
-            #print("n+1")
-            #print(V)
-            #print(Q)
-            #print()
 
             if (nn%10000) == 0:
                 RealTime = nn*DT
