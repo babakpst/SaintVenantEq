@@ -110,41 +110,39 @@ class Input_Info:
         Temp       = self.File_Input.readline().split("\n")
         Temp       = self.File_Input.readline().split("\n")
         for ii in range(self.No_reaches): # Length of each reach
-          Temp       = self.File_Input.readline().split("\n")
-          self.Reach_Length[ii] = float(Temp[0])
-          print("      The length of reach %d is:         %f" % (ii+1, self.Reach_Length[ii]))
+            Temp       = self.File_Input.readline().split("\n")
+            self.Reach_Length[ii] = float(Temp[0])
+            print("      The length of reach %d is:         %f" % (ii+1, self.Reach_Length[ii]))
         
 
         Temp       = self.File_Input.readline().split("\n")
         Temp       = self.File_Input.readline().split("\n")
         for ii in range(self.No_reaches): # Total number of control volumes in each reach/ For now we have a constant discretization in each reach.
-          Temp       = self.File_Input.readline().split("\n")
-          self.Reach_Disc[ii] = int(Temp[0])
-          print("      No. of discretization of reach %d is:   %f" % (ii+1, self.Reach_Disc[ii]))
-        
+            Temp       = self.File_Input.readline().split("\n")
+            self.Reach_Disc[ii] = int(Temp[0])
+            print("      No. of discretization of reach %d is:   %f" % (ii+1, self.Reach_Disc[ii]))
 
         Temp       = self.File_Input.readline().split("\n")
         Temp       = self.File_Input.readline().split("\n")
         for ii in range(self.No_reaches): # Slope of each reach
-          Temp       = self.File_Input.readline().split("\n")
-          self.Reach_Slope[ii] = float(Temp[0])
-          print("      The slope of reach %d is:               %f" % (ii+1, self.Reach_Slope[ii]))
-        
+            Temp       = self.File_Input.readline().split("\n")
+            self.Reach_Slope[ii] = float(Temp[0])
+            print("      The slope of reach %d is:               %f" % (ii+1, self.Reach_Slope[ii]))
 
         Temp       = self.File_Input.readline().split("\n")
         Temp       = self.File_Input.readline().split("\n")
         for ii in range(self.No_reaches): # The Manning's number for each reach
-          Temp       = self.File_Input.readline().split("\n")
-          self.Reach_Manning[ii] = float(Temp[0])
-          print("      The Manning's no. for reach %d is:      %f" % (ii+1, self.Reach_Manning[ii]))
+            Temp       = self.File_Input.readline().split("\n")
+            self.Reach_Manning[ii] = float(Temp[0])
+            print("      The Manning's no. for reach %d is:      %f" % (ii+1, self.Reach_Manning[ii]))
         
 
         Temp       = self.File_Input.readline().split("\n")
         Temp       = self.File_Input.readline().split("\n")
         for ii in range(self.No_reaches): # The width of each reach
-          Temp       = self.File_Input.readline().split("\n")
-          self.Reach_Width[ii] = float(Temp[0])
-          print("      The width of reach %d is:               %f" % (ii+1, self.Reach_Width[ii]))
+            Temp       = self.File_Input.readline().split("\n")
+            self.Reach_Width[ii] = float(Temp[0])
+            print("      The width of reach %d is:               %f" % (ii+1, self.Reach_Width[ii]))
         
         print(" ========== Input Class Ends ==========")
         print()

@@ -8,8 +8,8 @@ Total run time (in seconds):
 Time step (in seconds):
 0.01 
 
-Upstream boundary condition, constant flow (m^3/s):  14.1584
-5.0
+Upstream boundary condition, constant flow (m^3/s):  
+14.1584
 
 Downstream water depth (in meters):
 1.524
