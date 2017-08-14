@@ -177,6 +177,9 @@ class Solver:
                         A_F[ii]   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
                         Eta_F[ii] = ( L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] ) / ( L[ii] + L[ii-1] )
                         E_F[ii]   = ( 1.0 / (V[ii-1]+V[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E[ii-1]*V[ii-1] - E[ii]*V[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
+                        if E_F[ii]  < 0:
+                            print(" Fatal Error: Negative Energy: %d, %d, %f " % (ii, nn, E_F[ii] ))
+                            sys.exit()
                         if (E_F[ii] - Gravity * Eta_F[ii]) < 0:
                             print(" Fatal Error in Energy: %d, %d, %f, %f" % (ii, nn, E_F[ii], Gravity * Eta_F[ii] ))
                             sys.exit()
@@ -229,6 +232,9 @@ class Solver:
                     Eta_F_1[ii] = (L[ii]*Eta_1[ii-1] + L[ii-1]*Eta_1[ii] )/( L[ii] + L[ii-1] )
                     # Temp: E_{i+1/2}^{n+1/2}
                     E_F_1[ii]   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
+                    if E_F_1[ii]  < 0:
+                        print(" Fatal Error: Negative Energy: %d, %d, %f " % (ii, nn, E_F_1[ii] ))
+                        sys.exit()
                     if (E_F_1[ii] - Gravity * Eta_F_1[ii]) < 0:
                         print(" Fatal Error in energy at n+half: %d, %d, %f, %f" % (ii, nn, E_F_1[ii], Gravity * Eta_F_1[ii] ))
                         sys.exit()
