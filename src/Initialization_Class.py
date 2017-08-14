@@ -24,14 +24,18 @@ class Initialization:
 
         print(" Initialization ...")
 
-        self.Q  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-        self.V  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-        self.L  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-        self.Z  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-        self.M  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-        self.B  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-        self.X  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-        
+        self.Q  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
+        self.Q_F= np.zeros(self.Disc.N_Cells*2+1, dtype=np.float64 )
+        self.V  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
+        self.L  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
+        self.Z  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
+        self.Z_F= np.zeros(self.Disc.N_Cells*2+1, dtype=np.float64 )
+        self.M  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
+        self.B  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
+        self.X  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
+        self.X_F= np.zeros(self.Disc.N_Cells*2+1, dtype=np.float64 )
+
+
         self.Total_Time = self.Disc.Total_Time
         self.Time_Step  = self.Disc.Time_Step
         self.h_dw       = self.Disc.h_dw
@@ -40,9 +44,12 @@ class Initialization:
 
         self.L[:] = self.Disc.Length_Cell[:]
         self.Z[:] = self.Disc.Z_Cell[:]
+        self.Z_F[:] = self.Disc.Z_Full[:]
         self.M[:] = self.Disc.Manning_Cell[:]
         self.B[:] = self.Disc.Width_Cell[:]
         self.X[:] = self.Disc.X_Disc[:]
+        self.X_F[:] = self.Disc.X_Full[:]
+
 
         for ii in range( self.Disc.N_Cells ):
             self.Q[ii] = self.Disc.Q_Up

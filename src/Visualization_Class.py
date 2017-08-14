@@ -94,11 +94,9 @@ class Visualization:
 
         plt.show() # <modify> See why the execution stops when the the command gets here. 
 
-    def Plot_Full(self, N, X, Z, Q, V, Eta, U, E, A, T):
+    def Plot_Full(self, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T):
         import numpy as np
         import matplotlib.pyplot as plt
-
-        print(" This is the visualization class")
         
         Q_Arr   = np.zeros(N*2+1, dtype = np.float64)
         V_Arr   = np.zeros(N*2+1, dtype = np.float64)
@@ -110,14 +108,30 @@ class Visualization:
         A_Arr   = np.zeros(N*2+1, dtype = np.float64)
 
         Title      = T
-        Q_Arr[:]   = Q[:]
-        V_Arr[:]   = V[:]
-        Eta_Arr[:] = Eta[:]
-        U_Arr[:]   = U[:]
-        E_Arr[:]   = E[:]
-        X_Arr[:]   = X[:]
-        Z_Arr[:]   = Z[:]
-        A_Arr[:]   = A[:]
+        X_Arr[:]   = X_F[:]
+        Z_Arr[:]   = Z_F[:]
+
+        for ii in range(N):
+            Q_Arr[ii*2]    = Q_F[ii]
+            Q_Arr[ii*2+1]  = Q[ii]
+
+            Eta_Arr[ii*2]  = Eta_F[ii]
+            Eta_Arr[ii*2+1]= Eta[ii]
+
+            U_Arr[ii*2]    = U_F[ii]
+            U_Arr[ii*2+1]  = U[ii]
+            
+            E_Arr[ii*2]    = E_F[ii]
+            E_Arr[ii*2+1]  = E[ii]
+
+            A_Arr[ii*2]    = A_F[ii]
+            A_Arr[ii*2+1]  = A[ii]
+
+        Q_Arr[N*2+1]    = Q_F[N]
+        Eta_Arr[N*2+1]  = Eta_F[N]
+        U_Arr[N*2+1]    = U[N]
+        E_Arr[N*2+1]    = E_F[N]
+        A_Arr[N*2+1]    = A_F[N]
 
         plt.figure(1)
         plt.subplot(321)
@@ -127,14 +141,6 @@ class Visualization:
         plt.title("Water flow"+Title, fontsize = 16)
         plt.xlabel("Distance (m)",          fontsize=12)
         plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
-
-        plt.subplot(322)
-        plt.Figure(figsize=(50,15) )
-        plt.plot(X_Arr, V_Arr, label ="Control Volume" , color = "c", linewidth = 2.0)
-
-        plt.title("Control Volume"+Title, fontsize = 16)
-        plt.xlabel("Distance (m)",              fontsize=12)
-        plt.ylabel("Contral Volume (m^3)",      fontsize=12)
 
         plt.subplot(323)
         plt.Figure(figsize=(50,15) )
@@ -171,9 +177,6 @@ class Visualization:
         plt.ylabel("Area (m^2)",  fontsize=12)
 
         plt.show() # <modify> See why the execution stops when the the command gets here. 
-
-
-
 
     def Plot(self, N, X, Z, T):
         import numpy as np
