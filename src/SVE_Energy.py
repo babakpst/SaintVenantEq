@@ -18,11 +18,8 @@
 # import numpy as np --delete
 
 # Import classes ==================================================================================
-#import Input_Class  --delete
-#import Discretization_Class
-#import Initialization_Class
 import Solver_Class
-import matplotlib as plt
+
 
 # Code begins =====================================================================================
 print()

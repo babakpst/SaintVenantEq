@@ -14,48 +14,46 @@
 
 class Initialization:
 
+    def __init__(self):
+        # -- Import libs/classes
+        import numpy as np
+        import Discretization_Class
+        self.Disc = Discretization_Class.Discretization()
 
+        print(" ========== Initialization Class ==========")
 
-  def __init__(self):
-    # -- Import libs/classes
-    import numpy as np
-    import Discretization_Class
-    self.Disc = Discretization_Class.Discretization()
+        print(" Initialization ...")
 
-    print(" ========== Initialization Class ==========")
+        self.Q  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+        self.V  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+        self.L  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+        self.Z  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+        self.M  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+        self.B  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+        self.X  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
+        
+        self.Total_Time = self.Disc.Total_Time
+        self.Time_Step  = self.Disc.Time_Step
+        self.h_dw       = self.Disc.h_dw
+        self.Q_Up       = self.Disc.Q_Up
+        self.N_Cells    = self.Disc.N_Cells
 
-    print(" Initialization ...")
+        self.L[:] = self.Disc.Length_Cell[:]
+        self.Z[:] = self.Disc.Z_Cell[:]
+        self.M[:] = self.Disc.Manning_Cell[:]
+        self.B[:] = self.Disc.Width_Cell[:]
+        self.X[:] = self.Disc.X_Disc[:]
 
-    self.Q  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-    self.V  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-    self.L  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-    self.Z  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-    self.M  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-    self.B  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-    self.X  = np.zeros( self.Disc.N_Cells, dtype=np.float64 )
-    
-    self.Total_Time = self.Disc.Total_Time
-    self.Time_Step  = self.Disc.Time_Step
-    self.h_dw       = self.Disc.h_dw
-    self.Q_Up       = self.Disc.Q_Up
-    self.N_Cells    = self.Disc.N_Cells
+        for ii in range( self.Disc.N_Cells ):
+            self.Q[ii] = self.Disc.Q_Up
+            self.V[ii] = self.Disc.V_in
 
-    self.L[:] = self.Disc.Length_Cell[:]
-    self.Z[:] = self.Disc.Z_Cell[:]
-    self.M[:] = self.Disc.Manning_Cell[:]
-    self.B[:] = self.Disc.Width_Cell[:]
-    self.X[:] = self.Disc.X_Disc[:]
+        print(" ========== Initialization Class Ends. ==========")
+        print()
 
-    for ii in range( self.Disc.N_Cells ):
-      self.Q[ii] = self.Disc.Q_Up
-      self.V[ii] = self.Disc.V_in
+    # <modify> Use geometry function and elevation functino, instead of direct definition in the solver function, to make the code a more general one. 
+    #  def Geometry_func(self, V, L): # Returns the cross-section area: A
+    #    return V/L
 
-    print(" ========== Initialization Class Ends. ==========")
-    print()
-
-# <modify> Use geometry function and elevation functino, instead of direct definition in the solver function, to make the code a more general one. 
-#  def Geometry_func(self, V, L): # Returns the cross-section area: A
-#    return V/L
-
-#  def Elevation_func(self, A, B , Z):  # Returns the free surface elevation: eta
-#    return A/B + Z
+    #  def Elevation_func(self, A, B , Z):  # Returns the free surface elevation: eta
+    #    return A/B + Z
