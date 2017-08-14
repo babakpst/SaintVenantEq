@@ -127,52 +127,52 @@ class Visualization:
             A_Arr[ii*2]    = A_F[ii]
             A_Arr[ii*2+1]  = A[ii]
 
-        Q_Arr[N*2+1]    = Q_F[N]
-        Eta_Arr[N*2+1]  = Eta_F[N]
-        U_Arr[N*2+1]    = U[N]
-        E_Arr[N*2+1]    = E_F[N]
-        A_Arr[N*2+1]    = A_F[N]
+        Q_Arr[N*2]    = Q_F[N]
+        Eta_Arr[N*2]  = Eta_F[N]
+        U_Arr[N*2]    = U_F[N]
+        E_Arr[N*2]    = E_F[N]
+        A_Arr[N*2]    = A_F[N]
 
         plt.figure(1)
         plt.subplot(321)
         plt.Figure(figsize=(50,15) )
-        plt.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
+        plt.plot(X_Arr, Q_Arr, label ="Water flow (Q)" , color = "c", linewidth = 2.0)
 
-        plt.title("Water flow"+Title, fontsize = 16)
+        plt.title("Water flow (Q)"+Title, fontsize = 16)
         plt.xlabel("Distance (m)",          fontsize=12)
         plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
 
         plt.subplot(323)
         plt.Figure(figsize=(50,15) )
-        plt.plot(X_Arr, Eta_Arr, label ="Water Elevation" ,  color = "c", linewidth = 2.0)
+        plt.plot(X_Arr, Eta_Arr, label ="Water Elevation (Eta)" ,  color = "c", linewidth = 2.0)
         plt.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
 
-        plt.title("Water Elevation"+Title, fontsize = 16)
+        plt.title("Water Elevation (Eta)"+Title, fontsize = 16)
         plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Elevation (m)", fontsize=12)
         plt.legend(loc=0)
 
         plt.subplot(324)
         plt.Figure(figsize=(50,15) )
-        plt.plot(X_Arr, U_Arr, label ="Velocity" , color = "c", linewidth = 2.0)
+        plt.plot(X_Arr, U_Arr, label ="Velocity (U)" , color = "c", linewidth = 2.0)
 
-        plt.title("Water Velocity"+Title, fontsize = 16)
+        plt.title("Water Velocity (U)"+Title, fontsize = 16)
         plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Velocity (m/s)", fontsize=12)
 
         plt.subplot(325)
         plt.Figure(figsize=(50,15) )
-        plt.plot(X_Arr, E_Arr, label ="Energy" , color = "c", linewidth = 2.0)
+        plt.plot(X_Arr, E_Arr, label ="Energy (E)" , color = "c", linewidth = 2.0)
 
-        plt.title("Energy"+Title,   fontsize = 16)
+        plt.title("Energy (E)"+Title,   fontsize = 16)
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Energy (m/s)",  fontsize=12)        
 
         plt.subplot(326)
         plt.Figure(figsize=(50,15) )
-        plt.plot(X_Arr, A_Arr, label ="Area" , color = "c", linewidth = 2.0)
+        plt.plot(X_Arr, A_Arr, label ="Area (A)" , color = "c", linewidth = 2.0)
 
-        plt.title("Area"+Title,   fontsize = 16)
+        plt.title("Area (A)"+Title,   fontsize = 16)
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Area (m^2)",  fontsize=12)
 

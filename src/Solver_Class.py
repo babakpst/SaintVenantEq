@@ -144,8 +144,8 @@ class Solver:
                     if ii==0: # Boundary condition at face 1/2
                         A_F[ii]   = A[ii] # This means A_(1/2) = A_1
                         Eta_F[ii] = Eta[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
-                        E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
                         U_F[ii]   = Ex.Q_Up / A_F[ii]
+                        E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
                         Q_F[ii]   = A_F[ii] * U_F[ii]            
                     elif ii != 0 and ii != N_Cells: # middle cells - The subtraction is due to the fact that Python numbering is starting from 0
                         A_F[ii]   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
@@ -223,13 +223,14 @@ class Solver:
                     Eta_F_1[ii] = Eta_1[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
                     U_F_1[ii]   = Ex.Q_Up / A_F_1[ii]
                     E_F_1[ii]   = ((U_F_1[ii])**2)/2 + Gravity * Eta_F_1[ii]
+                    Q_F_1[ii]   = A_F_1[ii] * U_F_1[ii]                                
                 elif ii != 1 and ii != N_Cells: # middle cells
                     A_F_1[ii]   = (L[ii]*  A_1[ii-1] + L[ii-1]*  A_1[ii] )/( L[ii] + L[ii-1] )
                     Eta_F_1[ii] = (L[ii]*Eta_1[ii-1] + L[ii-1]*Eta_1[ii] )/( L[ii] + L[ii-1] )
                     # Temp: E_{i+1/2}^{n+1/2}
                     E_F_1[ii]   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
                     if (E_F_1[ii] - Gravity * Eta_F_1[ii]) < 0:
-                        print(" Fatal Error in energy at n+half: temp %d, %d, %f, %f" % (ii, nn, E_F_1[ii], Gravity * Eta_F[ii] ))
+                        print(" Fatal Error in energy at n+half: temp %d, %d, %f, %f" % (ii, nn, E_F_1[ii], Gravity * Eta_F_1[ii] ))
                         sys.exit()
                     U_F_1[ii]   = ( 2*(E_F_1[ii] - Gravity * Eta_F_1[ii] ) )**(0.5)
                     Q_F_1[ii]   = A_F_1[ii] * U_F_1[ii]          
