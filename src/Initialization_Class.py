@@ -44,7 +44,7 @@ class Initialization:
 
         self.L[:] = self.Disc.Length_Cell[:]
         self.Z[:] = self.Disc.Z_Cell[:]
-        self.Z[:] = self.Disc.Z_Full[:]
+        self.Z_F[:] = self.Disc.Z_Full[:]
         self.M[:] = self.Disc.Manning_Cell[:]
         self.B[:] = self.Disc.Width_Cell[:]
         self.X[:] = self.Disc.X_Disc[:]
