@@ -230,7 +230,7 @@ class Solver:
                     # Temp: E_{i+1/2}^{n+1/2}
                     E_F_1[ii]   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
                     if (E_F_1[ii] - Gravity * Eta_F_1[ii]) < 0:
-                        print(" Fatal Error in energy at n+half: temp %d, %d, %f, %f" % (ii, nn, E_F_1[ii], Gravity * Eta_F_1[ii] ))
+                        print(" Fatal Error in energy at n+half: %d, %d, %f, %f" % (ii, nn, E_F_1[ii], Gravity * Eta_F_1[ii] ))
                         sys.exit()
                     U_F_1[ii]   = ( 2*(E_F_1[ii] - Gravity * Eta_F_1[ii] ) )**(0.5)
                     Q_F_1[ii]   = A_F_1[ii] * U_F_1[ii]          
