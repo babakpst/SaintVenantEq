@@ -8,6 +8,7 @@
 #####################################################################
 
 class Discretization:
+
     def __init__(self):
         # -- Import libs/classes
         import Input_Class
@@ -107,7 +108,7 @@ class Discretization:
         #print(self.Width_Cell)
 
         if self.N_Cells != Cell_Counter:
-          sys.exit("FATAL ERROR: Mismatch between the number of cells! Check the Discretization_Class.")
+            sys.exit("FATAL ERROR: Mismatch between the number of cells! Check the Discretization_Class.")
           
         print(" Discretization ends successfully. ")
         print(" ========== Discretization Class ==========")
