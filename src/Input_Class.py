@@ -88,9 +88,15 @@ class Input_Info:
         Temp       = self.File_Input.readline().split("\n")
         Temp       = self.File_Input.readline().split("\n")
         Temp       = self.File_Input.readline().split("\n")
-        self.V_in = float(Temp[0])  # Downstream water depth
+        self.V_in = float(Temp[0])  # Control volume at the upstream
         print(" Downstream water depth is:           %f" % self.V_in)
-        
+
+        Temp       = self.File_Input.readline().split("\n")
+        Temp       = self.File_Input.readline().split("\n")
+        Temp       = self.File_Input.readline().split("\n")
+        self.V_ratio = float(Temp[0])  # Control volume at the upstream
+        print(" Downstream water depth is:           %f" % self.V_in)
+
 
         Temp       = self.File_Input.readline().split("\n")
         Temp       = self.File_Input.readline().split("\n")
@@ -98,7 +104,6 @@ class Input_Info:
         self.No_reaches  = int(Temp[0])  # Total number of reaches
         print(" Total number of reach(es) is(are):   %d" % self.No_reaches)
         
-
         # Define arrays: 
         self.Reach_Length  = np.zeros( self.No_reaches, dtype=np.float ) # Stores the length of each reach
         self.Reach_Disc    = np.zeros( self.No_reaches, dtype=np.int   ) # Stores the no. of control volume in each reach

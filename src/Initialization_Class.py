@@ -18,6 +18,7 @@ class Initialization:
         # -- Import libs/classes
         import numpy as np
         import Discretization_Class
+
         self.Disc = Discretization_Class.Discretization()
 
         print(" ========== Initialization Class ==========")
@@ -25,7 +26,6 @@ class Initialization:
         print(" Initialization ...")
 
         self.Q  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
-        self.Q_F= np.zeros(self.Disc.N_Cells*2+1, dtype=np.float64 )
         self.V  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.L  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.Z  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
@@ -42,18 +42,21 @@ class Initialization:
         self.Q_Up       = self.Disc.Q_Up
         self.N_Cells    = self.Disc.N_Cells
 
-        self.L[:] = self.Disc.Length_Cell[:]
-        self.Z[:] = self.Disc.Z_Cell[:]
+        self.L[:]   = self.Disc.Length_Cell[:]
+        self.Z[:]   = self.Disc.Z_Cell[:]
         self.Z_F[:] = self.Disc.Z_Full[:]
-        self.M[:] = self.Disc.Manning_Cell[:]
-        self.B[:] = self.Disc.Width_Cell[:]
-        self.X[:] = self.Disc.X_Disc[:]
+        self.M[:]   = self.Disc.Manning_Cell[:]
+        self.B[:]   = self.Disc.Width_Cell[:]
+        self.X[:]   = self.Disc.X_Disc[:]
         self.X_F[:] = self.Disc.X_Full[:]
 
 
         for ii in range( self.Disc.N_Cells ):
             self.Q[ii] = self.Disc.Q_Up
-            self.V[ii] = self.Disc.V_in
+            self.V[ii] = (self.Disc.V_in)* (1+  ( float(ii)/(self.Disc.N_Cells))* (self.Disc.V_ratio)    )
+
+
+
 
         print(" ========== Initialization Class Ends. ==========")
         print()

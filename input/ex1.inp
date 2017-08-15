@@ -17,6 +17,9 @@ Downstream water depth (in meters):
 Initial control volume:
 300
 
+Control Volume ratio:
+50
+
 Total number of sections (slopes):
 1
 
@@ -32,6 +35,5 @@ Slope for each slope:
 Manning's number for each slope:
 0.0035
 
-Cross section widths of each slope (in meter, assumed to be rectangular for now) 
+Cross section widths of each slope (in meter, assumed to be rectangular for now):
 6.096
-

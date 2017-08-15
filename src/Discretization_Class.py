@@ -51,12 +51,12 @@ class Discretization:
         print(" Basic calculations ...")
         Cell_Counter = 0
         for ii in range(Temp_No_reaches):
-            CntrlVolume_Length = round(self.Experiment.Reach_Length[ii]/self.Experiment.Reach_Disc[ii],5)  # Control volume length, rounded to 5 decimal points. The length of the final cell in reach would be adjusted to fix the discretization, if necessary. 
+            CntrlVolume_Length = round(self.Experiment.Reach_Length[ii]/self.Experiment.Reach_Disc[ii],10)  # Control volume length, rounded to 5 decimal points. The length of the final cell in reach would be adjusted to fix the discretization, if necessary. 
             print("   Cell length in the reach %d is: %f" % (ii+1, CntrlVolume_Length))
             Height             = Max_Height
 
-            Z_loss             =  round(CntrlVolume_Length * self.Experiment.Reach_Slope[ii],8)
-            Height            += round(0.5  * Z_loss,8)
+            Z_loss             = round(CntrlVolume_Length * self.Experiment.Reach_Slope[ii],10)
+            Height            += round(0.5  * Z_loss,10)
             Total_Length       = 0
 
             X_distance = 0.5 * CntrlVolume_Length
@@ -99,6 +99,7 @@ class Discretization:
 
         self.Q_Up       = self.Experiment.Q_Up
         self.V_in       = self.Experiment.V_in
+        self.V_ratio    = self.Experiment.V_ratio
         self.Total_Time = self.Experiment.Total_Time
         self.Time_Step  = self.Experiment.Time_Step
         self.h_dw       = self.Experiment.h_dw
