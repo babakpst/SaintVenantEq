@@ -42,6 +42,7 @@ class Visualization:
         A_Arr[:]   = A[:]
 
         plt.figure(1)
+
         plt.subplot(321)
         plt.Figure(figsize=(50,15) )
         plt.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
@@ -91,12 +92,6 @@ class Visualization:
         plt.title("Area"+Title,   fontsize = 16)
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Area (m^2)",  fontsize=12)
-
-        #mng = plt.get_current_fig_manager()
-        #mng.frame.Maximize(True) 
-        
-        #mng = plt.get_current_fig_manager()
-        #mng.resize(*manager.window.maxsize())
 
         plt.show() # <modify> See why the execution stops when the the command gets here. 
 
@@ -182,8 +177,7 @@ class Visualization:
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Area (m^2)",  fontsize=12)
 
-        mng = plt.get_current_fig_manager()
-        mng.frame.Maximize(True)
+
         plt.show() # <modify> See why the execution stops when the the command gets here. 
 
     def Plot(self, N, X, Z, T):
