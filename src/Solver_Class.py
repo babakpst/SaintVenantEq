@@ -120,7 +120,7 @@ class Solver:
                 F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
 
             # <delete>
-            if (nn%10000) == 0:
+            if (nn%1) == 0:
                 RealTime = nn*DT
                 TITLE = " at THE SOLUTION time: " + str(RealTime)
                 Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)

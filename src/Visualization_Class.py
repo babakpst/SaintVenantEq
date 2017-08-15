@@ -92,6 +92,12 @@ class Visualization:
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Area (m^2)",  fontsize=12)
 
+        #mng = plt.get_current_fig_manager()
+        #mng.frame.Maximize(True) 
+        
+        #mng = plt.get_current_fig_manager()
+        #mng.resize(*manager.window.maxsize())
+
         plt.show() # <modify> See why the execution stops when the the command gets here. 
 
     def Plot_Full(self, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T):
@@ -176,6 +182,8 @@ class Visualization:
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Area (m^2)",  fontsize=12)
 
+        mng = plt.get_current_fig_manager()
+        mng.frame.Maximize(True)
         plt.show() # <modify> See why the execution stops when the the command gets here. 
 
     def Plot(self, N, X, Z, T):
