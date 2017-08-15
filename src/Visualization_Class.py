@@ -42,6 +42,7 @@ class Visualization:
         A_Arr[:]   = A[:]
 
         plt.figure(1)
+
         plt.subplot(321)
         plt.Figure(figsize=(50,15) )
         plt.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
@@ -175,6 +176,7 @@ class Visualization:
         plt.title("Area (A)"+Title,   fontsize = 16)
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Area (m^2)",  fontsize=12)
+
 
         plt.show() # <modify> See why the execution stops when the the command gets here. 
 

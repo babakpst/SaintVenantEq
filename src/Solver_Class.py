@@ -5,7 +5,7 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/31/2017
-# Latest update: 08/01/2017
+# Latest update: 08/15/2017
 #
 # Comment: This class conducts the numerical solution of the Saint-Venant equation
 #
@@ -120,10 +120,10 @@ class Solver:
                 F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
 
             # <delete>
-            if (nn%10000) == 0:
-                RealTime = nn*DT
-                TITLE = " at THE SOLUTION time: " + str(RealTime)
-                Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
+            #if (nn%100) == 0:
+            #    RealTime = nn*DT
+            #    TITLE = " at THE SOLUTION time: " + str(RealTime)
+            #    Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
 
             # Face reconstruction
             # Important comment: The size of the face arrays (..._F) are "N_Cells + 1". Face i+1/2 is indicated by index i. For example, face 1/2 is ..._F[0], face 1+1/2 is ..._F[1]
@@ -200,9 +200,10 @@ class Solver:
                         E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
 
             # <delete>
-            #RealTime = nn*DT            
-            #TITLE = " at time: " + str(RealTime)
-            #Draw.Plot_Full(N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
+            if (nn%100) == 0:
+              RealTime = nn*DT            
+              TITLE = " at time: " + str(RealTime)
+              Draw.Plot_Full(N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
 
             for ii in range(N_Cells): # To find k1 in the Runge-Kutta method and find the solution at n+1/2
                 k_1V[ii]  = DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
