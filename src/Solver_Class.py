@@ -120,9 +120,10 @@ class Solver:
                 F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
 
             # <delete>
-            RealTime = nn*DT
-            TITLE = " at time: " + str(RealTime)
-            Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
+            if (nn%10000) == 0:
+                RealTime = nn*DT
+                TITLE = " at THE SOLUTION time: " + str(RealTime)
+                Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
 
             # Face reconstruction
             # Important comment: The size of the face arrays (..._F) are "N_Cells + 1". Face i+1/2 is indicated by index i. For example, face 1/2 is ..._F[0], face 1+1/2 is ..._F[1]
@@ -178,10 +179,10 @@ class Solver:
                         Eta_F[ii] = ( L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] ) / ( L[ii] + L[ii-1] )
                         E_F[ii]   = ( 1.0 / (V[ii-1]+V[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E[ii-1]*V[ii-1] - E[ii]*V[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
                         if E_F[ii]  < 0:
-                            print(" Fatal Error: Negative Energy: %d, %d, %f " % (ii, nn, E_F[ii] ))
+                            print(" Fatal Error: Negative Energy: %d, %d, %f " % (nn, ii, E_F[ii] ))
                             sys.exit()
                         if (E_F[ii] - Gravity * Eta_F[ii]) < 0:
-                            print(" Fatal Error in Energy: %d, %d, %f, %f" % (ii, nn, E_F[ii], Gravity * Eta_F[ii] ))
+                            print(" Fatal Error in Energy: %d, %d, %f, %f" % (nn, ii, E_F[ii], Gravity * Eta_F[ii] ))
                             sys.exit()
                         U_F[ii]   = (2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
                         Q_F[ii]   = A_F[ii] * U_F[ii]
@@ -199,9 +200,9 @@ class Solver:
                         E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
 
             # <delete>
-            RealTime = nn*DT            
-            TITLE = " at time: " + str(RealTime)
-            Draw.Plot_Full(N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
+            #RealTime = nn*DT            
+            #TITLE = " at time: " + str(RealTime)
+            #Draw.Plot_Full(N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
 
             for ii in range(N_Cells): # To find k1 in the Runge-Kutta method and find the solution at n+1/2
                 k_1V[ii]  = DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
@@ -227,16 +228,16 @@ class Solver:
                     U_F_1[ii]   = Ex.Q_Up / A_F_1[ii]
                     E_F_1[ii]   = ((U_F_1[ii])**2)/2 + Gravity * Eta_F_1[ii]
                     Q_F_1[ii]   = A_F_1[ii] * U_F_1[ii]                                
-                elif ii != 1 and ii != N_Cells: # middle cells
+                elif ii != 0 and ii != N_Cells: # middle cells
                     A_F_1[ii]   = (L[ii]*  A_1[ii-1] + L[ii-1]*  A_1[ii] )/( L[ii] + L[ii-1] )
                     Eta_F_1[ii] = (L[ii]*Eta_1[ii-1] + L[ii-1]*Eta_1[ii] )/( L[ii] + L[ii-1] )
                     # Temp: E_{i+1/2}^{n+1/2}
-                    E_F_1[ii]   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
+                    E_F_1[ii]   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F[ii] *( V[ii-1] + V[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E[ii-1]*V[ii-1] + E[ii]*V[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  )   ) )
                     if E_F_1[ii]  < 0:
-                        print(" Fatal Error: Negative Energy: %d, %d, %f " % (ii, nn, E_F_1[ii] ))
+                        print(" Fatal Error: Negative Energy: %d, %d, %f " % (nn, ii, E_F_1[ii] ))
                         sys.exit()
                     if (E_F_1[ii] - Gravity * Eta_F_1[ii]) < 0:
-                        print(" Fatal Error in energy at n+half: %d, %d, %f, %f" % (ii, nn, E_F_1[ii], Gravity * Eta_F_1[ii] ))
+                        print(" Fatal Error in energy at n+half: %d, %d, %f, %f" % (nn, ii, E_F_1[ii], Gravity * Eta_F_1[ii] ))
                         sys.exit()
                     U_F_1[ii]   = ( 2*(E_F_1[ii] - Gravity * Eta_F_1[ii] ) )**(0.5)
                     Q_F_1[ii]   = A_F_1[ii] * U_F_1[ii]          
@@ -254,9 +255,9 @@ class Solver:
                     E_F_1[ii]   = ((U_F_1[ii])**2)/2 + Gravity * Eta_F_1[ii]
 
             # <delete>
-            RealTime = nn*DT            
-            TITLE = " at time: " + str(RealTime)
-            Draw.Plot_Full(N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
+            #RealTime = nn*DT            
+            #TITLE = " at REAL time: " + str(RealTime)
+            #Draw.Plot_Full(N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
 
             for ii in range(N_Cells): # To find k2 in the Runge-Kutta method and find the solution at n + 1
                 V_0[ii]  = V[ii]
@@ -273,10 +274,10 @@ class Solver:
                 Q[ii] = Q[ii] + k_2Q[ii]
 
 
-            if (nn%10000) == 0:
-                RealTime = nn*DT
-                TITLE = " at time: " + str(RealTime)
-                Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
+            #if (nn%10000) == 0:
+            #    RealTime = nn*DT
+            #    TITLE = " at time: " + str(RealTime)
+            #    Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
         # End loop on the time steps
 
         print(" ========== Solver Class ==========")
