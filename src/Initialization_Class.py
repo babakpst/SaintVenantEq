@@ -6,7 +6,7 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/18/2017
-# Latest update: 07/31/2017
+# Latest update: 08/14/2017
 #
 # Comment: This class processes the input data and provides the initial information for the simulation. 
 #

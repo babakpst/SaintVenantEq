@@ -3,7 +3,7 @@
 # Code developed by: Dr. Babak Poursartip
 # Supervised by:     Dr. Ben R. Hodges
 # Start date:    07/18/2017
-# Latest update: 07/31/2017
+# Latest update: 08/14/2017
 # Comment: This class Discretizes the domain.
 #####################################################################
 
@@ -83,15 +83,15 @@ class Discretization:
             self.Length_Cell[Cell_Counter]  = self.Experiment.Reach_Length[ii] - Total_Length
             X_distance                      = X_distance - 0.5 * CntrlVolume_Length + 0.5 * self.Length_Cell[Cell_Counter]
             self.X_Disc[Cell_Counter]       = X_distance  
-            self.X_Disc[Cell_Counter*2]     = X_distance - 0.5 * self.Length_Cell[Cell_Counter]
-            self.X_Disc[Cell_Counter*2+1]   = X_distance  
-            self.X_Disc[Cell_Counter*2+2]   = X_distance + 0.5 * self.Length_Cell[Cell_Counter] 
+            self.X_Full[Cell_Counter*2]     = X_distance - 0.5 * self.Length_Cell[Cell_Counter]
+            self.X_Full[Cell_Counter*2+1]   = X_distance  
+            self.X_Full[Cell_Counter*2+2]   = X_distance + 0.5 * self.Length_Cell[Cell_Counter] 
             Height                         -= ( 0.5*Z_loss + 0.5 * self.Length_Cell[Cell_Counter] * self.Experiment.Reach_Slope[ii] )
 
-            self.Z_Cell[Cell_Counter]       = Heiht 
-            self.Z_Full[Cell_Counter*2]     = Heiht + 0.5 * self.Length_Cell[Cell_Counter] * self.Experiment.Reach_Slope[ii]
-            self.Z_Full[Cell_Counter*2+1]   = Heiht 
-            self.Z_Full[Cell_Counter*2+2]   = Heiht - 0.5 * self.Length_Cell[Cell_Counter] * self.Experiment.Reach_Slope[ii]
+            self.Z_Cell[Cell_Counter]       = Height 
+            self.Z_Full[Cell_Counter*2]     = Height + 0.5 * self.Length_Cell[Cell_Counter] * self.Experiment.Reach_Slope[ii]
+            self.Z_Full[Cell_Counter*2+1]   = Height 
+            self.Z_Full[Cell_Counter*2+2]   = Height - 0.5 * self.Length_Cell[Cell_Counter] * self.Experiment.Reach_Slope[ii]
             self.Manning_Cell[Cell_Counter] = self.Experiment.Reach_Manning[ii]
             self.Width_Cell[Cell_Counter]   = self.Experiment.Reach_Width[ii]
             Cell_Counter += 1
