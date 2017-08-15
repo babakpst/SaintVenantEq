@@ -5,7 +5,7 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/31/2017
-# Latest update: 08/01/2017
+# Latest update: 08/15/2017
 #
 # Comment: This class conducts the numerical solution of the Saint-Venant equation
 #
