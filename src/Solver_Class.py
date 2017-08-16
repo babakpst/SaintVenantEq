@@ -113,17 +113,17 @@ class Solver:
                 A[ii]   = V[ii] / L[ii]
                 U[ii]   = Q[ii] / A[ii]
                 Eta[ii] = A[ii] / B[ii] + Z[ii]
-                E[ii]   = ((U[ii])**2) /2 +  Gravity*Eta[ii]
+                E[ii]   = ((U[ii])**2.0) /(float(2)) +  Gravity*Eta[ii]
                 l_P[ii] = B[ii] + 2 * Eta[ii]
                 R_h[ii] = A[ii] / l_P[ii]
                 C[ii]   = ((M[ii])**2) / ((R_h[ii])**(4.0/3.0))
                 F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
 
             # <delete>
-            #if (nn%100) == 0:
-            #    RealTime = nn*DT
-            #    TITLE = " at THE SOLUTION time: " + str(RealTime)
-            #    Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
+            if (nn%10000) == 0:
+                RealTime = nn*DT
+                TITLE = " at THE SOLUTION time: " + str(RealTime)
+                Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
 
             # Face reconstruction
             # Important comment: The size of the face arrays (..._F) are "N_Cells + 1". Face i+1/2 is indicated by index i. For example, face 1/2 is ..._F[0], face 1+1/2 is ..._F[1]
@@ -200,7 +200,7 @@ class Solver:
                         E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
 
             # <delete>
-            if (nn%100) == 0:
+            if (nn%1e20) == 0:
               RealTime = nn*DT            
               TITLE = " at time: " + str(RealTime)
               Draw.Plot_Full(N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
@@ -256,9 +256,10 @@ class Solver:
                     E_F_1[ii]   = ((U_F_1[ii])**2)/2 + Gravity * Eta_F_1[ii]
 
             # <delete>
-            #RealTime = nn*DT            
-            #TITLE = " at REAL time: " + str(RealTime)
-            #Draw.Plot_Full(N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
+            if (nn%1e20) == 0:
+                RealTime = nn*DT            
+                TITLE = " at REAL time: " + str(RealTime)
+                Draw.Plot_Full(N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
 
             for ii in range(N_Cells): # To find k2 in the Runge-Kutta method and find the solution at n + 1
                 V_0[ii]  = V[ii]
