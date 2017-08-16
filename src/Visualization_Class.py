@@ -98,6 +98,7 @@ class Visualization:
     def Plot_Full(self, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T):
         import numpy as np
         import matplotlib.pyplot as plt
+        import matplotlib.ticker as tkr
         
         Q_Arr   = np.zeros(N*2+1, dtype = np.float64)
         V_Arr   = np.zeros(N*2+1, dtype = np.float64)
@@ -136,15 +137,7 @@ class Visualization:
 
         plt.figure(1)
         plt.subplot(321)
-        plt.Figure(figsize=(50,15) )
-        plt.plot(X_Arr, Q_Arr, label ="Water flow (Q)" , color = "c", linewidth = 2.0)
-
-        plt.title("Water flow (Q)"+Title, fontsize = 16)
-        plt.xlabel("Distance (m)",          fontsize=12)
-        plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
-
-        plt.subplot(323)
-        plt.Figure(figsize=(50,15) )
+        plt.Figure(figsize=(30,20) )
         plt.plot(X_Arr, Eta_Arr, label ="Water Elevation (Eta)" ,  color = "c", linewidth = 2.0)
         plt.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
 
@@ -153,8 +146,16 @@ class Visualization:
         plt.ylabel("Elevation (m)", fontsize=12)
         plt.legend(loc=0)
 
+        plt.subplot(323)
+        plt.Figure(figsize=(30,20) )
+        plt.plot(X_Arr, Q_Arr, label ="Water flow (Q)" , color = "c", linewidth = 2.0)
+
+        plt.title("Water flow (Q)"+Title, fontsize = 16)
+        plt.xlabel("Distance (m)",          fontsize=12)
+        plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
+
         plt.subplot(324)
-        plt.Figure(figsize=(50,15) )
+        plt.Figure(figsize=(30,20) )
         plt.plot(X_Arr, U_Arr, label ="Velocity (U)" , color = "c", linewidth = 2.0)
 
         plt.title("Water Velocity (U)"+Title, fontsize = 16)
@@ -193,7 +194,6 @@ class Visualization:
         Title = T
         X_Arr[:]   = X[:]
         Z_Arr[:]   = Z[:]
-
 
         fig, ax = plt.subplots()
         ax.plot(X_Arr, Z_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
