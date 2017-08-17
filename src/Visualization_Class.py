@@ -43,7 +43,7 @@ class Visualization:
 
         fig = plt.figure(1)
 
-        ax1 = fig.add_subplot(321, xlim = (0,1800), ylim = (0,250))
+        ax1 = fig.add_subplot(321, xlim = (0,1800), ylim = (0,100))
         ax1.grid()
         ax1.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
 
@@ -78,7 +78,7 @@ class Visualization:
         #plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Velocity (m/s)", fontsize=12)
 
-        ax5 = fig.add_subplot(325, xlim = (0,1800), ylim = (0,500))
+        ax5 = fig.add_subplot(325, xlim = (0,1800), ylim = (0,150))
         ax5.grid()
         ax5.plot(X_Arr, E_Arr, label ="Energy" , color = "c", linewidth = 2.0)
 
@@ -138,11 +138,11 @@ class Visualization:
         E_Arr[N*2]    = E_F[N]
         A_Arr[N*2]    = A_F[N]
 
-        plt.figure(iii)
-        plt.subplot(321)
-        plt.Figure(figsize=(30,20) )
-        plt.plot(X_Arr, Eta_Arr, label ="Water Elevation (Eta)" ,  color = "c", linewidth = 2.0)
-        plt.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
+        fig = plt.figure(iii)
+        ax1 = fig.add_subplot(321)
+        ax1.grid()
+        ax1.plot(X_Arr, Eta_Arr, label ="Water Elevation (Eta)" ,  color = "c", linewidth = 2.0)
+        ax1.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
 
         plt.title(Title, fontsize = 16)
         #plt.title("Water Elevation (Eta)"+Title, fontsize = 16)
@@ -150,33 +150,33 @@ class Visualization:
         plt.ylabel("Elevation (m)", fontsize=12)
         #plt.legend(loc=0)
 
-        plt.subplot(322)
-        plt.Figure(figsize=(20,10) )
-        plt.plot(X_Arr, A_Arr, label ="Area (A)" , color = "c", linewidth = 2.0)
+        ax2 = fig.add_subplot(322)
+        ax2.grid()
+        ax2.plot(X_Arr, A_Arr, label ="Area (A)" , color = "c", linewidth = 2.0)
 
         #plt.title("Area (A)"+Title,   fontsize = 16)
         #plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Area (m^2)",  fontsize=12)
 
-        plt.subplot(323)
-        plt.Figure(figsize=(20,10) )
-        plt.plot(X_Arr, E_Arr, label ="Energy (E)" , color = "c", linewidth = 2.0)
+        ax3 = fig.add_subplot(323)
+        ax3.grid()
+        ax3.plot(X_Arr, E_Arr, label ="Energy (E)" , color = "c", linewidth = 2.0)
 
         #plt.title("Energy (E)"+Title,   fontsize = 16)
         #plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Energy (m/s)",  fontsize=12)
 
-        plt.subplot(325)
-        plt.Figure(figsize=(30,20) )
-        plt.plot(X_Arr, Q_Arr, label ="Water flow (Q)" , color = "c", linewidth = 2.0)
+        ax5 = fig.add_subplot(325)
+        ax5.grid()
+        ax5.plot(X_Arr, Q_Arr, label ="Water flow (Q)" , color = "c", linewidth = 2.0)
 
         #plt.title("Water flow (Q)"+Title, fontsize = 16)
         plt.xlabel("Distance (m)",          fontsize=12)
         plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
 
-        plt.subplot(326)
-        plt.Figure(figsize=(30,20) )
-        plt.plot(X_Arr, U_Arr, label ="Velocity (U)" , color = "c", linewidth = 2.0)
+        ax6 = fig.add_subplot(326)
+        ax6.grid()
+        ax6.plot(X_Arr, U_Arr, label ="Velocity (U)" , color = "c", linewidth = 2.0)
 
         #plt.title("Water Velocity (U)"+Title, fontsize = 16)
         plt.xlabel("Distance (m)", fontsize=12)

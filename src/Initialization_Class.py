@@ -52,9 +52,12 @@ class Initialization:
 
 
         for ii in range( self.Disc.N_Cells ):
-            self.Q[ii] = self.Disc.Q_Up
             self.V[ii] = (self.Disc.V_in)* (1+  ( float(ii)/(self.Disc.N_Cells))* (self.Disc.V_ratio)    )
 
+
+        for ii in range( self.Disc.N_Cells ):
+            self.Q[ii] = self.Disc.Q_Up * (self.Disc.N_Cells - ii)/self.Disc.N_Cells
+        #self.Q[0] = self.Disc.Q_Up
 
 
 
