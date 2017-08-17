@@ -2,6 +2,12 @@ Input file name:
 ex1.inp
 
 Input directory:
+C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\input
+
+Output directory:
+C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\output
+
+Input directory:
 /data2/Babak/MyDocuments/Codes/GitHub/SVE_Energy/input
 
 Output directory:
@@ -10,11 +16,6 @@ Output directory:
 
 
 
-Input directory:
-C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\SVE_Energy\input
-
-Output directory:
-C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\SVE_Energy\output
 
 
 
