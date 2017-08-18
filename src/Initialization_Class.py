@@ -56,7 +56,8 @@ class Initialization:
 
 
         for ii in range( self.Disc.N_Cells ):
-            self.Q[ii] = self.Disc.Q_Up * (self.Disc.N_Cells - ii)/self.Disc.N_Cells
+            self.Q[ii] = 0
+            #self.Q[ii] = self.Disc.Q_Up * (self.Disc.N_Cells - ii)/self.Disc.N_Cells
         #self.Q[0] = self.Disc.Q_Up
 
 

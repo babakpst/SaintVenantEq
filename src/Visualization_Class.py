@@ -43,7 +43,7 @@ class Visualization:
 
         fig = plt.figure(1)
 
-        ax1 = fig.add_subplot(321, xlim = (0,1800), ylim = (0,100))
+        ax1 = fig.add_subplot(321, xlim = (0,1800), ylim = (-5,20))
         ax1.grid()
         ax1.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
 
@@ -52,7 +52,7 @@ class Visualization:
         #plt.xlabel("Distance (m)",          fontsize=12)
         plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
 
-        ax2 = fig.add_subplot(322, xlim = (0,1800), ylim = (0,1000))
+        ax2 = fig.add_subplot(322, xlim = (0,2000), ylim = (0,1000))
         ax2.grid()
         ax2.plot(X_Arr, V_Arr, label ="Control Volume" , color = "c", linewidth = 2.0)
 
@@ -60,7 +60,7 @@ class Visualization:
         #plt.xlabel("Distance (m)",              fontsize=12)
         plt.ylabel("Contral Volume (m^3)",      fontsize=12)
 
-        ax3 = fig.add_subplot(323, xlim = (0,1800), ylim = (0,15))
+        ax3 = fig.add_subplot(323, xlim = (0,2000), ylim = (0,15))
         ax3.grid()
         ax3.plot(X_Arr, Eta_Arr, label ="Water Elevation" ,  color = "c", linewidth = 2.0)
         ax3.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
@@ -70,7 +70,7 @@ class Visualization:
         plt.ylabel("Elevation (m)", fontsize=12)
         #plt.legend(loc=0)
 
-        ax4 = fig.add_subplot(324, xlim = (0,1800), ylim = (0,10))
+        ax4 = fig.add_subplot(324, xlim = (0,2000), ylim = (-1,3))
         ax4.grid()
         ax4.plot(X_Arr, U_Arr, label ="Velocity" , color = "c", linewidth = 2.0)
 
@@ -78,7 +78,7 @@ class Visualization:
         #plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Velocity (m/s)", fontsize=12)
 
-        ax5 = fig.add_subplot(325, xlim = (0,1800), ylim = (0,150))
+        ax5 = fig.add_subplot(325, xlim = (0,2000), ylim = (0,150))
         ax5.grid()
         ax5.plot(X_Arr, E_Arr, label ="Energy" , color = "c", linewidth = 2.0)
 
@@ -86,7 +86,7 @@ class Visualization:
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Energy (m/s)",  fontsize=12)        
 
-        ax6 = fig.add_subplot(326, xlim = (0,1800), ylim = (0,50))
+        ax6 = fig.add_subplot(326, xlim = (0,2000), ylim = (0,50))
         ax6.grid()
         ax6.plot(X_Arr, A_Arr, label ="Area" , color = "c", linewidth = 2.0)
 
