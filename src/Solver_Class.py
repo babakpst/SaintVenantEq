@@ -120,8 +120,8 @@ class Solver:
                 F[ii]   = Gravity * C[ii] * V[ii] * ((U[ii])**2)
 
             # <delete>
-            if (nn%1000) == 0:
-                RealTime = nn*DT
+            if (nn%100) == 0:
+                RealTime = round(nn*DT,5)
                 TITLE = " at time: " + str(RealTime)
                 Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
 
@@ -151,8 +151,15 @@ class Solver:
                     elif ii != 0 and ii != N_Cells: # middle cells - The subtraction is due to the fact that Python numbering is starting from 0
                         A_F[ii]   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
                         Eta_F[ii] = (L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] )/( L[ii] + L[ii-1] )
-                        E_F[ii]   = (L[ii]*  E[ii-1] + L[ii-1]*  E[ii] )/( L[ii] + L[ii-1] )
-                        U_F[ii]   = (2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
+                        #E_F[ii]   = (L[ii]*  E[ii-1] + L[ii-1]*  E[ii] )/( L[ii] + L[ii-1] ) 
+                        E_F[ii]   = Eta_F[ii] * Gravity # <delete>
+                        if ( E_F[ii] < Gravity * Eta_F[ii] ):
+                            print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], Gravity * Eta_F[ii] ))
+                            print(" %60.50f" % (E_F_1[ii] - Gravity * Eta_F_1[ii]))                            
+                            check = input(" Error: press ENTER to exit ")
+                            sys.exit()
+                        #U_F[ii]   = ( 2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.500)
+                        U_F[ii]   = 0.0 # <delete>
                         Q_F[ii]   = A_F[ii] * U_F[ii]
                     elif ii == N_Cells: # Boundary condition at face N+1/2
                         Delta_Z   = L[ii-1] * ( ( Z[ii-2]-Z[ii-1] )/( L[ii-2]+L[ii-1] )  )
@@ -161,7 +168,7 @@ class Solver:
                         A_F[ii]   = (Eta_F[ii] - Z_N1 ) * B[ii-1]
                         #if Eta[ii-1]<Eta_F[ii]:
                         #    print(" Fatal error: Downstream boundary condition: %d , %d , %f , %f" % (ii,nn,Eta[ii-1],Eta_F[ii]))    
-                        #    check = input("Error: press ENTER to exit ")
+                        #    check = input(" Error: press ENTER to exit ")
                         #    sys.exit()
                         #Q_F[ii]   = (1.0/M[ii-1]) * A_F[ii] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) ) # <modify>
                         Q_F[ii]   = Q[ii-1]
@@ -181,11 +188,14 @@ class Solver:
                         E_F[ii]   = ( 1.0 / (V[ii-1]+V[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E[ii-1]*V[ii-1] - E[ii]*V[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
                         if E_F[ii]  < 0:
                             print(" Fatal Error: Negative Energy: %d, %d, %f " % (nn, ii, E_F[ii] ))
-                            check = input("Error: press ENTER to exit ")
+                            check = input(" Error: press ENTER to exit ")
                             sys.exit()
-                        if (E_F[ii] - Gravity * Eta_F[ii]) < 0:
-                            print(" Fatal Error in Energy: %d, %d, %f, %f" % (nn, ii, E_F[ii], Gravity * Eta_F[ii] ))
-                            check = input("Error: press ENTER to exit ")
+                        if (E_F[ii] - Gravity * Eta_F[ii]) < 0.0000001:
+                            E_F[ii] = Gravity * Eta_F[ii]
+                        if (E_F[ii] - Gravity * Eta_F[ii]) < 0.0:
+                            print(" Fatal Error in Energy: %d, %d, %20.10f, %20.10f" % (nn, ii, E_F[ii], Gravity * Eta_F[ii] ))
+                            print(" %30.20f" % (E_F_1[ii] - Gravity * Eta_F_1[ii]))                            
+                            check = input(" Error: press ENTER to exit ")
                             sys.exit()
                         U_F[ii]   = (2*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
                         Q_F[ii]   = A_F[ii] * U_F[ii]
@@ -196,7 +206,7 @@ class Solver:
                         A_F[ii]   = (Eta_F[ii] - Z_N1 ) * B[ii-1]
                         #if Eta[ii-1]<Eta_F[ii]:
                         #    print(" Fatal error: Downstream boundary condition: %d , %d , %f , %f" % (ii,nn,Eta[ii-1],Eta_F[ii]))    
-                        #    check = input("Error: press ENTER to exit ")
+                        #    check = input(" Error: press ENTER to exit ")
                         #    sys.exit()
                         #Q_F[ii]   = (1.0/M[ii-1]) * A_F[ii] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )
                         Q_F[ii]   = Q[ii-1]
@@ -204,13 +214,13 @@ class Solver:
                         E_F[ii]   = ((U_F[ii])**2)/2 + Gravity * Eta_F[ii]
 
             # <delete>
-            if (nn%1000) == 0:
-              RealTime = nn*DT            
+            if (nn%100) == 0:
+              RealTime = round(nn*DT,5)
               TITLE = "k-1 at time: " + str(RealTime)
               Draw.Plot_Full(2,N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
 
             for ii in range(N_Cells): # To find k1 in the Runge-Kutta method and find the solution at n+1/2
-                k_1V[ii]  = DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
+                k_1V[ii]  =  DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
                 k_1Q[ii]  = (DT / L[ii]) * ( Q_F[ii] * U_F[ii] - Q_F[ii+1] * U_F[ii+1] + Gravity * A_F[ii]* Eta_F[ii] - Gravity * A_F[ii+1]* Eta_F[ii+1] -F[ii] ) # <modify> remove
                 # Solution at "n+1/2"
                 V_1[ii]   = V[ii] + 0.5* k_1V[ii]
@@ -240,11 +250,14 @@ class Solver:
                     E_F_1[ii]   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F[ii] *( V[ii-1] + V[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E[ii-1]*V[ii-1] + E[ii]*V[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  )   ) )
                     if E_F_1[ii]  < 0:
                         print(" Fatal Error: Negative Energy: %d, %d, %f " % (nn, ii, E_F_1[ii] ))
-                        check = input("Error: press ENTER to exit ")
+                        check = input(" Error: press ENTER to exit ")
                         sys.exit()
-                    if (E_F_1[ii] - Gravity * Eta_F_1[ii]) < 0:
-                        print(" Fatal Error in energy at n+half: %d, %d, %f, %f" % (nn, ii, E_F_1[ii], Gravity * Eta_F_1[ii] ))
-                        check = input("Error: press ENTER to exit ")
+                    if (E_F_1[ii] - Gravity * Eta_F_1[ii]) < 0.00000001:
+                        E_F_1[ii] = Gravity * Eta_F_1[ii]
+                    if (E_F_1[ii] - Gravity * Eta_F_1[ii]) < 0.0:
+                        print(" Fatal Error in energy at n+half: %d, %d, %20.10f, %20.10f" % (nn, ii, E_F_1[ii], Gravity * Eta_F_1[ii] ))
+                        print(" %30.20f" % (E_F_1[ii] - Gravity * Eta_F_1[ii]))
+                        check = input(" Error: press ENTER to exit ")
                         sys.exit()
                     U_F_1[ii]   = ( 2*(E_F_1[ii] - Gravity * Eta_F_1[ii] ) )**(0.5)
                     Q_F_1[ii]   = A_F_1[ii] * U_F_1[ii]          
@@ -255,7 +268,7 @@ class Solver:
                     A_F_1[ii]   = (Eta_F_1[ii] - Z_N1 ) * B[ii-1]
                     #if Eta_1[ii-1]<Eta_F_1[ii]:
                     #    print(" Fatal error: Downstream boundary condition: %d , %d , %f , %f" % (ii,nn,Eta_1[ii-1],Eta_F[ii]))    
-                    #    check = input("Error: press ENTER to exit ")
+                    #    check = input(" Error: press ENTER to exit ")
                     #    sys.exit()
                     #Q_F_1[ii]   = (1.0/M[ii-1]) * A_F_1[ii] * ((R_h_1[ii-1])**(2.0/3.0))  * ( ( (Eta_1[ii-1]-Eta_F_1[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )  # <modify>
                     Q_F_1[ii]   = Q_1[ii-1]
@@ -263,8 +276,8 @@ class Solver:
                     E_F_1[ii]   = ((U_F_1[ii])**2)/2 + Gravity * Eta_F_1[ii]
 
             # <delete>
-            if (nn%1000) == 0:
-                RealTime = nn*DT            
+            if (nn%100) == 0:
+                RealTime = round(nn*DT,5)
                 TITLE = "k-2 at time: " + str(RealTime)
                 Draw.Plot_Full(3, N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
 

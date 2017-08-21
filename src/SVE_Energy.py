@@ -14,37 +14,33 @@
 #
 #####################################################################
 
-# Import built-in libraries =======================================================================
-# import numpy as np --delete
-
-# Import classes ==================================================================================
-import Solver_Class
+def main():
 
 
-# Code begins =====================================================================================
-print()
-print(" -------- 1D Saint-Venant Equation based on the face reconstruction --------")
-print(" ---------- Developers:: Babak Poursartip/Ben R. Hodges/Frank Liu ----------")
-print()
-print()
-print(" Simulation starts ...")
-print()
+    # Import built-in libraries =======================================================================
+    # import numpy as np --delete
 
-Results = Solver_Class.Solver()
-#Results2=Results.RK2()
-
-print(" Simulation was conducted successfully. ")
-print()
+    # Import classes ==================================================================================
+    import Solver_Class
 
 
+    # Code begins =====================================================================================
+    print()
+    print(" -------- 1D Saint-Venant Equation based on the face reconstruction --------")
+    print(" ---------- Developers:: Babak Poursartip/Ben R. Hodges/Frank Liu ----------")
+    print()
+    print()
+    print(" Simulation starts ...")
+    print()
 
+    Results = Solver_Class.Solver()
+    #Results2=Results.RK2()
 
-#def main():
-#    print('Hello, World!')
-#
-#
-#if __name__ == '__main__':
-#    main()
+    print(" Simulation was conducted successfully. ")
+    print()
+
+if __name__ == '__main__':
+     main()
 
 
 

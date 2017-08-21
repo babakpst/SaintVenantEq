@@ -33,9 +33,9 @@ class Input_Info:
         Output_Dir = Address.readline().split("\n")  # 8
 
         # Windows
-        self.InputFileName = Input_Dir[0] + "\\" + File[0] # InputFileName: the name of the input file
+        #self.InputFileName = Input_Dir[0] + "\\" + File[0] # InputFileName: the name of the input file
         # Linux
-        #self.InputFileName = Input_Dir[0] + "/" + File[0] # InputFileName: the name of the input file
+        self.InputFileName = Input_Dir[0] + "/" + File[0] # InputFileName: the name of the input file
         self.Output_Dir = Output_Dir[0]
 
         print(" The input file name is:  %s" % self.InputFileName)
