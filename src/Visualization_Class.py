@@ -16,10 +16,11 @@ class Visualization:
     def __init__(self):
         pass
 
-    def Plot_at_Cell(self, N, X, Z, Q, V, Eta, U, E, A, T):
+    @staticmethod
+    def Plot_at_Cell(N, X, Z, Q, V, Eta, U, E, A, T):
         import numpy as np
         import matplotlib.pyplot as plt
-
+        
         print(" This is the visualization class")
         
         Q_Arr   = np.zeros(N, dtype = np.float64)
@@ -41,9 +42,13 @@ class Visualization:
         Z_Arr[:]   = Z[:]
         A_Arr[:]   = A[:]
 
-        fig = plt.figure(1)
+        #plt.ion()
+        fig = plt.figure()
 
-        ax1 = fig.add_subplot(321, xlim = (0,1800), ylim = (-5,20))
+        #plt.switch_backend('TkAgg') #TkAgg (instead Qt4Agg)
+        #print('#1 Backend:',plt.get_backend())
+        #ax1 = fig.add_subplot(321, xlim = (0,1800), ylim = (-5,15))
+        ax1 = fig.add_subplot(321)
         ax1.grid()
         ax1.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
 
@@ -52,7 +57,8 @@ class Visualization:
         #plt.xlabel("Distance (m)",          fontsize=12)
         plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
 
-        ax2 = fig.add_subplot(322, xlim = (0,2000), ylim = (0,1000))
+        #ax2 = fig.add_subplot(322, xlim = (0,2000), ylim = (0,1000))
+        ax2 = fig.add_subplot(322)
         ax2.grid()
         ax2.plot(X_Arr, V_Arr, label ="Control Volume" , color = "c", linewidth = 2.0)
 
@@ -60,7 +66,8 @@ class Visualization:
         #plt.xlabel("Distance (m)",              fontsize=12)
         plt.ylabel("Contral Volume (m^3)",      fontsize=12)
 
-        ax3 = fig.add_subplot(323, xlim = (0,2000), ylim = (0,15))
+        #ax3 = fig.add_subplot(323, xlim = (0,2000), ylim = (0,10))
+        ax3 = fig.add_subplot(323)
         ax3.grid()
         ax3.plot(X_Arr, Eta_Arr, label ="Water Elevation" ,  color = "c", linewidth = 2.0)
         ax3.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
@@ -70,7 +77,8 @@ class Visualization:
         plt.ylabel("Elevation (m)", fontsize=12)
         #plt.legend(loc=0)
 
-        ax4 = fig.add_subplot(324, xlim = (0,2000), ylim = (-1,3))
+        #ax4 = fig.add_subplot(324, xlim = (0,2000), ylim = (-1,3))
+        ax4 = fig.add_subplot(324)
         ax4.grid()
         ax4.plot(X_Arr, U_Arr, label ="Velocity" , color = "c", linewidth = 2.0)
 
@@ -78,7 +86,8 @@ class Visualization:
         #plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Velocity (m/s)", fontsize=12)
 
-        ax5 = fig.add_subplot(325, xlim = (0,2000), ylim = (0,150))
+        #ax5 = fig.add_subplot(325, xlim = (0,2000), ylim = (0,150))
+        ax5 = fig.add_subplot(325)
         ax5.grid()
         ax5.plot(X_Arr, E_Arr, label ="Energy" , color = "c", linewidth = 2.0)
 
@@ -86,7 +95,8 @@ class Visualization:
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Energy (m/s)",  fontsize=12)        
 
-        ax6 = fig.add_subplot(326, xlim = (0,2000), ylim = (0,50))
+        #ax6 = fig.add_subplot(326, xlim = (0,2000), ylim = (0,50))
+        ax6 = fig.add_subplot(326)
         ax6.grid()
         ax6.plot(X_Arr, A_Arr, label ="Area" , color = "c", linewidth = 2.0)
 
@@ -94,11 +104,17 @@ class Visualization:
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Area (m^2)",  fontsize=12)
 
-        plt.pause(0.01)
-        #plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
-        #plt.show() # <modify> See why the execution stops when the the command gets here. 
 
-    def Plot_Full(self, iii, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T):
+        mng = plt.get_current_fig_manager()
+        mng.resize(*mng.window.maxsize())
+
+        #plt.pause(0.01)
+        #plt.draw
+        #plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
+        plt.show() # <modify> See why the execution stops when the the command gets here. 
+
+    @staticmethod
+    def Plot_Full(iii, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T):
         import numpy as np
         import matplotlib.pyplot as plt
         import matplotlib.ticker as tkr
@@ -182,10 +198,14 @@ class Visualization:
         plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Velocity (m/s)", fontsize=12)
 
-        plt.pause(0.01)
-        #plt.show() # <modify> See why the execution stops when the the command gets here. 
+        mng = plt.get_current_fig_manager()
+        mng.resize(*mng.window.maxsize())
 
-    def Plot(self, N, X, Z, T):
+        #plt.pause(0.01)
+        plt.show() # <modify> See why the execution stops when the the command gets here. 
+
+    @staticmethod
+    def Plot(N, X, Z, T):
         import numpy as np
         import matplotlib.pyplot as plt
         import matplotlib.ticker as ticker
@@ -205,7 +225,6 @@ class Visualization:
         y_labels = ax.get_yticks()
         ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%15.13f'))
         plt.show()
-
 
         #plt.figure(1)
         #plt.Figure(figsize=(20,10) )
