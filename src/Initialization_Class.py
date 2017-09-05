@@ -6,7 +6,7 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/18/2017
-# Latest update: 08/14/2017
+# Latest update: 09/01/2017
 #
 # Comment: This class processes the input data and provides the initial information for the simulation. 
 #
@@ -35,12 +35,12 @@ class Initialization:
         self.X  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.X_F= np.zeros(self.Disc.N_Cells*2+1, dtype=np.float64 )
 
-
         self.Total_Time = self.Disc.Total_Time
         self.Time_Step  = self.Disc.Time_Step
         self.h_dw       = self.Disc.h_dw
         self.Q_Up       = self.Disc.Q_Up
         self.N_Cells    = self.Disc.N_Cells
+        self.InterpolationType = self.Disc.InterpolationType
 
         self.L[:]   = self.Disc.Length_Cell[:]
         self.Z[:]   = self.Disc.Z_Cell[:]
