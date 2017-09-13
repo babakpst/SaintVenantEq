@@ -106,7 +106,9 @@ class Solver:
         X[:] = Ex.X[:]
         X_F[:] = Ex.X_F[:]
 
-        slowness = 50000
+        slowness = 50
+        Plot1 = 1000
+        Plot2 = 1000
         h_upstream = V[0]/(B[0]*L[0])
 
         print(" Time marching ... ")
@@ -122,6 +124,7 @@ class Solver:
                 A[ii]   = V[ii] / L[ii]
                 U[ii]   = Q[ii] / A[ii]
                 Eta[ii] = A[ii] / B[ii] + Z[ii]
+                #E[ii]   = ((U[ii])**2.0) /(float(2.0*Gravity)) +  Eta[ii]
                 E[ii]   = ((U[ii])**2.0) /(float(2)) +  Gravity*Eta[ii]
                 l_P[ii] = B[ii] + 2.0 * (Eta[ii]-Z[ii])
                 R_h[ii] = A[ii] / l_P[ii]
@@ -135,7 +138,7 @@ class Solver:
 
 
             # <delete>
-            if (nn%10000) == 0:
+            if (nn%Plot1) == 0:
                 print(Q_Upstream)
                 RealTime = round(nn*DT,5)
                 TITLE = " at time: " + str(RealTime)
@@ -164,26 +167,32 @@ class Solver:
                             #A_F[ii]   = A[ii] # This means A_(1/2) = A_1
                             #U_F[ii]   = Q_F[ii] / A_F[ii]
                             #Eta_F[ii] = Eta[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
-
                             Z_0 = Z[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
+                            #print(" Z00 = %f" % Z_0)
+                            #print(" Z0 = %f" % Z[0])
+                            #print(" Zn = %f" % Z[N_Cells-1])
+                            #print(" Zf0 = %f" % Z_F[0])
+                            #print(" Zfn = %f" % Z_F[2*N_Cells])
                             #Eta_F[ii] = h_upstream+ Z_0
                             Eta_F[ii] = Eta[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
                             A_F[ii]   =  (Eta_F[ii] - Z_0)* B[ii]
-
                             U_F[ii]   = Q_F[ii] / A_F[ii]
+                            #E_F[ii]   = ((U_F[ii])**2.0)/(2.0*Gravity) + Eta_F[ii]
                             E_F[ii]   = ((U_F[ii])**2.0)/2.0 + Gravity * Eta_F[ii]
                     elif ii != 0 and ii != N_Cells: # middle cells - The subtraction is due to the fact that Python numbering is starting from 0
                         if IntType == 3:
                             A_F[ii]   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
                             Eta_F[ii] = (L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii] )/( L[ii] + L[ii-1] )
                             #E_F[ii]   = (L[ii]*  E[ii-1] + L[ii-1]*  E[ii] )/( L[ii] + L[ii-1] ) 
+                            #E_F[ii]   = Eta_F[ii] # <delete>
                             E_F[ii]   = Eta_F[ii] * Gravity # <delete>
+                            #if ( E_F[ii] < Eta_F[ii] ):
                             if ( E_F[ii] < Gravity * Eta_F[ii] ):
                                 print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], Gravity * Eta_F[ii] ))
                                 print(" %60.50f" % (E_F_1[ii] - Gravity * Eta_F_1[ii]))                            
                                 check = input(" Error: press ENTER to exit ")
                                 sys.exit()
-                            if ( E_F[ii] < E_F[ii-1] ):
+                            if ( E_F[ii] < E[ii-1] ):
                                 print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
                                 check = input(" Error: press ENTER to exit ")
                                 sys.exit()
@@ -195,10 +204,10 @@ class Solver:
                             U_F[ii]   = (L[ii]*  U[ii-1] + L[ii-1]*  U[ii] )/( L[ii] + L[ii-1] )    
                             Q_F[ii]   = A_F[ii] * U_F[ii]
                             E_F[ii]   = (L[ii]*  E[ii-1] + L[ii-1]*  E[ii] )/( L[ii] + L[ii-1] ) 
-                            if ( E_F[ii] < E_F[ii-1] ):
-                                print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
-                                check = input(" Error: press ENTER to exit ")
-                                sys.exit()
+                            #if ( E_F[ii] < E_F[ii-1] ):
+                            #    print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
+                            #    check = input(" Error: press ENTER to exit ")
+                            #    sys.exit()
                             Eta_F[ii] = (1.0/(2 * Gravity)) * ( 2 * E_F[ii] - (U_F[ii])**(2.0) )
                     elif ii == N_Cells: # Boundary condition at face N+1/2
                         if IntType == 3 or IntType == 4:
@@ -213,11 +222,12 @@ class Solver:
                             #Q_F[ii]   = (1.0/M[ii-1]) * A_F[ii] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) ) # <modify>
                             Q_F[ii]   = Q[ii-1]
                             U_F[ii]   = Q_F[ii] / A_F[ii]
+                            #E_F[ii]   = ((U_F[ii])**2.0)/(2.0*Gravity) + Eta_F[ii]
                             E_F[ii]   = ((U_F[ii])**2.0)/2.0 + Gravity * Eta_F[ii]
-                            if ( E_F[ii] < E_F[ii-1] ):
-                                print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
-                                check = input(" Error: press ENTER to exit ")
-                                sys.exit()
+                            #if ( E_F[ii] < E_F[ii-1] ):
+                            #    print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
+                            #    check = input(" Error: press ENTER to exit ")
+                            #    sys.exit()
             elif nn != 0:   
                 for ii in range(N_Cells+1):
                     if ii==0: # Boundary condition at face 1/2
@@ -233,8 +243,8 @@ class Solver:
                             A_F[ii]   =  (Eta_F[ii] - Z_0)* B[ii]
 
                             U_F[ii]   = Q_F[ii] / A_F[ii]
+                            #E_F[ii]   = ((U_F[ii])**2.0)/(2.0*Gravity) + Eta_F[ii]
                             E_F[ii]   = ((U_F[ii])**2.0)/2.0 + Gravity * Eta_F[ii]
-
                     elif ii != 0 and ii != N_Cells: # middle cells
                         if IntType == 3:
                             A_F[ii]   = ( L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] )
@@ -256,10 +266,11 @@ class Solver:
                                 print(" %30.20f" % (E_F_1[ii] - Gravity * Eta_F_1[ii]))                            
                                 check = input(" Error: press ENTER to exit ")
                                 sys.exit()
-                            if ( E_F[ii] < E_F[ii-1] ):
+                            if ( E_F[ii] < E[ii-1] ):
                                 print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
                                 check = input(" Error: press ENTER to exit ")
                                 sys.exit()
+                            #U_F[ii]   = (2.0 * Gravity * (E_F[ii] - Eta_F[ii] ) )**(0.5)
                             U_F[ii]   = (2.0*(E_F[ii] - Gravity * Eta_F[ii] ) )**(0.5)
                             Q_F[ii]   = A_F[ii] * U_F[ii]
                         elif IntType == 4:
@@ -267,6 +278,10 @@ class Solver:
                             U_F[ii]   = ( L[ii]*  U[ii-1] + L[ii-1]*  U[ii] )/( L[ii] + L[ii-1] ) # interpolation
                             Q_F[ii]   = A_F[ii] * U_F[ii]                                         # solve
                             E_F[ii]   = ( 1.0 / (V[ii-1]+V[ii]) ) * ( E_F_0[ii] *( V_0[ii-1] + V_0[ii] ) - E[ii-1]*V[ii-1] - E[ii]*V[ii] + E_0[ii-1]*V_0[ii-1] + E_0[ii]*V_0[ii] + DT * ( Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  ) + Q_0[ii-1] * E_0[ii-1] - Q_0[ii] * E_0[ii] - (1.0/2.0) * ( U_0[ii-1] * F_0[ii-1] + U_0[ii] * F_0[ii]  )   ) )
+                            #if ( E_F[ii] < E_F[ii-1] ):
+                            #    print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
+                            #    check = input(" Error: press ENTER to exit ")
+                            #    sys.exit()
                             Eta_F[ii] = (1.0/(2 * Gravity)) * ( 2 * E_F[ii] - (U_F[ii])**(2.0) )  # solve
                             if abs(Eta_F[ii] - (A_F[ii] / B[ii]  + Z_F[2*ii])) > 0.001:
                                 print(" Fatal Error: inconsistency btw A and eta: %d %d %30.20f %30.20f"% (nn, ii, Eta_F[ii], A_F[ii] / B[ii]  + Z_F[2*ii] ))
@@ -285,13 +300,14 @@ class Solver:
                             #Q_F[ii]   = (1.0/M[ii-1]) * A_F[ii] * ((R_h[ii-1])**(2.0/3.0))  * ( ( (Eta[ii-1]-Eta_F[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )
                             Q_F[ii]   = Q[ii-1]
                             U_F[ii]   = Q_F[ii] / A_F[ii]
+                            #E_F[ii]   = ((U_F[ii])**2.0)/(2.0 * Gravity) + Eta_F[ii]
                             E_F[ii]   = ((U_F[ii])**2.0)/2.0 + Gravity * Eta_F[ii]
-                            if ( E_F[ii] < E_F[ii-1] ):
-                                print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
-                                check = input(" Error: press ENTER to exit ")
-                                sys.exit()
+                            #if ( E_F[ii] < E_F[ii-1] ):
+                            #    print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
+                            #    check = input(" Error: press ENTER to exit ")
+                            #    sys.exit()
             # <delete>
-            if (nn%100000) == 0:
+            if (nn%Plot2) == 0:
                 RealTime = round(nn*DT,5)
                 TITLE = "k-1 at time: " + str(RealTime)
                 Draw.Plot_Full(2,N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
@@ -309,6 +325,7 @@ class Solver:
                 A_1[ii]   = V_1[ii] / L[ii]
                 U_1[ii]   = Q_1[ii] / A_1[ii]
                 Eta_1[ii] = A_1[ii] / B[ii] + Z[ii]
+                #E_1[ii]   = ((U_1[ii])**2.0) /(2.0*Gravity) +  Eta_1[ii]
                 E_1[ii]   = ((U_1[ii])**2.0) /2.0 +  Gravity*Eta_1[ii]
                 l_P_1[ii] = B[ii] + 2.0 * (Eta_1[ii] - Z[ii])  # <modify>
                 R_h_1[ii] = A_1[ii] / l_P_1[ii] # <modify>
@@ -322,7 +339,7 @@ class Solver:
 
 
             # <delete>
-            if (nn%100000) == 0:
+            if (nn%Plot2) == 0:
                 RealTime = round(nn*DT,5)
                 TITLE = " at half time: " + str(RealTime)
                 Draw.Plot_at_Cell(N_Cells, X, Z, Q_1, V_1, Eta_1, U_1, E_1, A_1, TITLE)
@@ -341,7 +358,8 @@ class Solver:
                         A_F_1[ii]   = (Eta_F_1[ii] - Z_0)* B[ii]
 
                         U_F_1[ii]   = Q_F_1[ii] / A_F_1[ii]
-                        E_F_1[ii]   = ((U_F_1[ii])**2.0)/2.0 + Gravity * Eta_F_1[ii]
+                        #E_F_1[ii]   = ((U_F_1[ii])**2.0)/(2.0*Gravity) + Eta_F_1[ii]
+                        E_F_1[ii]   = ((U_F_1[ii])**2.0)/(2.0) + Gravity * Eta_F_1[ii]
 
                 elif ii != 0 and ii != N_Cells: # middle cells
                     if IntType == 3:
@@ -352,7 +370,7 @@ class Solver:
                         #    check = input(" Error: press ENTER to exit ")
                         #    sys.exit()
                         # Temp: E_{i+1/2}^{n+1/2}
-                        E_F_1[ii]   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F[ii] *( V[ii-1] + V[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E[ii-1]*V[ii-1] + E[ii]*V[ii] + DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  )   ) )
+                        E_F_1[ii]   = ( 1.0 / (V_1[ii-1]+V_1[ii]) ) * ( E_F[ii] *( V[ii-1] + V[ii] ) - E_1[ii-1]*V_1[ii-1] - E_1[ii]*V_1[ii] + E[ii-1]*V[ii-1] + E[ii]*V[ii] + (0.5)* DT * ( Q_1[ii-1] * E_1[ii-1] - Q_1[ii] * E_1[ii] - (1.0/2.0) * ( U_1[ii-1] * F_1[ii-1] + U_1[ii] * F_1[ii]  ) + Q[ii-1] * E[ii-1] - Q[ii] * E[ii] - (1.0/2.0) * ( U[ii-1] * F[ii-1] + U[ii] * F[ii]  )   ) )
                         if E_F_1[ii]  < 0:
                             print(" Fatal Error: Negative Energy: %d, %d, %f " % (nn, ii, E_F_1[ii] ))
                             check = input(" Error: press ENTER to exit ")
@@ -364,7 +382,7 @@ class Solver:
                             print(" %30.20f" % (E_F_1[ii] - Gravity * Eta_F_1[ii]))
                             check = input(" Error: press ENTER to exit ")
                             sys.exit()
-                        if ( E_F_1[ii] < E_F_1[ii-1] ):
+                        if ( E_F_1[ii] < E_1[ii-1] ):
                             print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F_1[ii], E_F_1[ii-1] ) )
                             check = input(" Error: press ENTER to exit ")
                             sys.exit()
@@ -380,10 +398,10 @@ class Solver:
                             print(" Fatal Error halfway: inconsistency btw A and eta: %d %d %30.20f %30.20f"% (nn, ii, Eta_F_1[ii], A_F_1[ii] / B[ii]  + Z_F[2*ii] ))
                             check = input(" Error: press ENTER to exit ")
                             sys.exit()
-                        if ( E_F_1[ii] < E_F_1[ii-1] ):
-                            print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F_1[ii], E_F_1[ii-1] ) )
-                            check = input(" Error: press ENTER to exit ")
-                            sys.exit()
+                        #if ( E_F_1[ii] < E_F_1[ii-1] ):
+                        #    print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F_1[ii], E_F_1[ii-1] ) )
+                        #    check = input(" Error: press ENTER to exit ")
+                        #    sys.exit()
                 elif ii == N_Cells: # Boundary condition at face N+1/2
                     if IntType == 3 or IntType == 4:
                         Delta_Z   = L[ii-1] * ( ( Z[ii-2]-Z[ii-1] )/( L[ii-2]+L[ii-1] )  )  # <remove> after debugging
@@ -397,14 +415,15 @@ class Solver:
                         #Q_F_1[ii]   = (1.0/M[ii-1]) * A_F_1[ii] * ((R_h_1[ii-1])**(2.0/3.0))  * ( ( (Eta_1[ii-1]-Eta_F_1[ii])/(0.5*L[ii-1])  )**(1.0/2.0) )  # <modify>
                         Q_F_1[ii]   = Q_1[ii-1]
                         U_F_1[ii]   = Q_F_1[ii] / A_F_1[ii]
+                        #E_F_1[ii]   = ((U_F_1[ii])**2.0)/(2.0*Gravity) + Eta_F_1[ii]
                         E_F_1[ii]   = ((U_F_1[ii])**2.0)/2.0 + Gravity * Eta_F_1[ii]
-                        if ( E_F_1[ii] < E_F_1[ii-1] ):
-                            print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F_1[ii], E_F_1[ii-1] ) )
-                            check = input(" Error: press ENTER to exit ")
-                            sys.exit()
+                        #if ( E_F_1[ii] < E_F_1[ii-1] ):
+                        #    print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F_1[ii], E_F_1[ii-1] ) )
+                        #    check = input(" Error: press ENTER to exit ")
+                        #    sys.exit()
 
             # <delete>
-            if (nn%100000) == 0:
+            if (nn%Plot2) == 0:
                 RealTime = round(nn*DT,5)
                 TITLE = "k-2 at time: " + str(RealTime)
                 Draw.Plot_Full(3, N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
