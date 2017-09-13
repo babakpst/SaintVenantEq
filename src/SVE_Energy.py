@@ -1,4 +1,8 @@
 
+#!/usr/bin/python
+
+# Tell the linux machine to run the script with python
+
 #####################################################################
 # 
 # This code is based on the methodology described in the paper.
