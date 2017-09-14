@@ -6,7 +6,7 @@ Total run time (in seconds):
 50000
 
 Time step (in seconds):
-0.001 
+0.01 
 
 Upstream boundary condition, constant flow (m^3/s):  
 20.0
@@ -15,10 +15,10 @@ Downstream water depth (in meters):
 2.0
 
 Initial control volume: ( V = L * B * h)
-200
+160
 
 Control Volume ratio:
-0.0
+0.25
 
 Total number of sections (slopes):
 1
