@@ -40,7 +40,6 @@ class Initialization:
         self.h_dw       = self.Disc.h_dw
         self.Q_Up       = self.Disc.Q_Up
         self.N_Cells    = self.Disc.N_Cells
-        self.InterpolationType = self.Disc.InterpolationType
 
         self.L[:]   = self.Disc.Length_Cell[:]
         self.Z[:]   = self.Disc.Z_Cell[:]

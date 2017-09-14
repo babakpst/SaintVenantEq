@@ -103,7 +103,6 @@ class Discretization:
         self.Total_Time = self.Experiment.Total_Time
         self.Time_Step  = self.Experiment.Time_Step
         self.h_dw       = self.Experiment.h_dw
-        self.InterpolationType = self.Experiment.InterpolationType
       
         if self.N_Cells != Cell_Counter:
             sys.exit("FATAL ERROR: Mismatch between the number of cells! Check the Discretization_Class.")
