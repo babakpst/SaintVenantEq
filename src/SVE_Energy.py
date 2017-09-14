@@ -30,8 +30,12 @@ def main():
 
     # Code begins =====================================================================================
     print()
-    print(" -------- 1D Saint-Venant Equation based on the face reconstruction --------")
-    print(" ---------- Developers:: Babak Poursartip/Ben R. Hodges/Frank Liu ----------")
+    print('''
+    
+     -------- 1D Saint-Venant Equation based on the face reconstruction --------
+     ---------- Developers:: Babak Poursartip/Ben R. Hodges/Frank Liu ----------
+    
+     ''')
     print()
     print()
     print(" Simulation starts ...")
