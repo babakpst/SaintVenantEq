@@ -83,7 +83,7 @@ class Solver:
         U_F_1   = np.zeros(N_Cells+1, dtype=np.float64 )
         E_F_1   = np.zeros(N_Cells+1, dtype=np.float64 )
         Q_F_1   = np.zeros(N_Cells+1, dtype=np.float64 )
-
+        F_q_1   = np.zeros(N_Cells*2, dtype=np.float64 )
 
         k_1V  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove this array
         k_1Q  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove this array
@@ -102,9 +102,9 @@ class Solver:
         X[:] = Ex.X[:]
         X_F[:] = Ex.X_F[:]
 
-        slowness = 50
+        slowness = 0
         Plot1 = 1000
-        Plot2 = 1000
+        Plot2 = 2000
         h_upstream = V[0]/(B[0]*L[0])
 
         print(" Time marching ... ")
@@ -160,33 +160,40 @@ class Solver:
                     A_F_hat        = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii] )/( L[ii] + L[ii-1] ) # <modify> Modify this equation for a variable area
                     B_F_hat        = B[ii] # <modify> Modify this equation for a variable area
                     Gamma_F_hat    = (L[ii]*Gamma[ii-1] + L[ii-1]*  Gamma[ii] )/( L[ii] + L[ii-1] ) # <modify> Modify this equation for a variable area
-                    H_hat          = A_F_hat[ii] / B_F_hat
-                    a              = 1 + (2.0 * Gamma_F_hat * (H_hat**2.0) )/(A_F_hat) - (  (Gravity * Eta_F_hat)/E_F[ii]  ) * (1 + (2.0*Gamma_F_hat*(H_hat**2.0))/A_F_hat ) - 2.0 * Gravity * H_hat/E_F[ii]
+                    H_hat          = A_F_hat / B_F_hat
+                    a              = 1 + (2.0 * Gamma_F_hat * (H_hat**2.0) )/(A_F_hat) - ( Gravity * Eta_F_hat/E_F[ii]  ) * ( 1 + 2.0*Gamma_F_hat*(H_hat**2.0)/A_F_hat ) - 2.0 * Gravity * H_hat/E_F[ii]
                     b              = 2.0 - Gravity * ( 2.0 * Eta_F_hat + H_hat ) / E_F[ii]
                     c              = 1 - (Gravity * Eta_F_hat/E_F[ii] ) - Q_F_hat_S/( 2.0 * E_F[ii] * (A_F_hat**2.0) )
 
-                    if ((b+1)**(2.0) - 4.0 * a * c < 0.0:
+                    if ((b+1)**(2.0) - 4.0 * a * c )< 0.0:
                         print(" Fatal error: negative" )
                         check = input(" Error: press ENTER to exit ")
                         sys.exit()
 
-                    Eta_Epsilon1   = ( A_F_hat / B_F_hat ) * ( ( -b-1 + ( ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ) ) / ( 2 * a ) )
-                    Eta_Epsilon2   = ( A_F_hat / B_F_hat ) * ( ( -b-1 - ( ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ) ) / ( 2 * a ) )
+                    Eta_Epsilon1   = ( A_F_hat / B_F_hat ) *     ( -b-1 + ( ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ) )) / ( 2 * a ) 
+                    Eta_Epsilon2   = ( A_F_hat / B_F_hat ) *     ( -b-1 - ( ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ) )) / ( 2 * a ) 
                 
-                    if abs(Eta_Epsilon1) < abs(Eta_Epsilon2)
+                    if abs(Eta_Epsilon1) < abs(Eta_Epsilon2):
                         Eta_Epsilon    =  Eta_Epsilon1
-                    else
+                    else:
                         Eta_Epsilon    =  Eta_Epsilon2
-                    
+
+                    print("  Eta_Epsilon  %3d: %30.20f" % (ii,Eta_Epsilon))  # <delete> delete after debugging
+
                     Eta_F[ii]  = Eta_F_hat + Eta_Epsilon
                     A_F[ii]    = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
 
                     x = Eta_Epsilon/H_hat
                     Alfa_Epsilon  = 2 * E_F[ii] * (A_F_hat**2.0) * ( a * (x**2.0) + b * x + c )
-                    Q_F[ii] = ( Q_F_hat_S+Alfa_Epsilon )**(0.5)
-                    Q_check = (   2*((A_F[ii])**(2.0)) * ( E_F[ii]-Gravity*E_F[ii] )   ) **(0.5)
-                    if Q_check- Q_F[ii] <0:
-                        print(' Error: Q at the face is not consistent ')
+
+                    #print(" Alfa_Epsilon %d:  %25.20f %25.20f %25.20f %25.20f %25.20f %25.20f %25.20f" % (ii, E_F[ii], A_F_hat, a, b, c, x, Alfa_Epsilon))  # <delete> delete after debugging
+
+                    if ( Q_F_hat_S + Alfa_Epsilon )<0.0:
+                        print("  Warning")
+                    Q_F[ii] = ( Q_F_hat_S + Alfa_Epsilon )**(0.5)
+                    Q_check = (   2*((A_F[ii])**(2.0)) * ( E_F[ii]-Gravity*Eta_F[ii] )   ) **(0.5)
+                    if abs(Q_check- Q_F[ii]) >0.01:
+                        print(' Error: Q at the face is not consistent, %30.20f %30.20f' % (Q_check, Q_F[ii]))
                         check = input(" Error: press ENTER to exit ")
                         sys.exit()
                     U_F[ii]   = Q_F[ii] / A_F[ii]
@@ -262,22 +269,22 @@ class Solver:
                     A_F_hat        = (L[ii]*  A_1[ii-1] + L[ii-1]*  A_1[ii] )/( L[ii] + L[ii-1] ) # <modify> Modify this equation for a variable area
                     B_F_hat        = B[ii] # <modify> Modify this equation for a variable area
                     Gamma_F_hat    = (L[ii]*Gamma[ii-1] + L[ii-1]*  Gamma[ii] )/( L[ii] + L[ii-1] ) # <modify> Modify this equation for a variable area
-                    H_hat          = A_F_hat[ii] / B_F_hat
+                    H_hat          = A_F_hat / B_F_hat
                     a              = 1 + (2.0 * Gamma_F_hat * (H_hat**2.0) )/(A_F_hat) - (  (Gravity * Eta_F_hat)/E_F_1[ii]  ) * (1 + (2.0*Gamma_F_hat*(H_hat**2.0))/A_F_hat ) - 2.0 * Gravity * H_hat/E_F_1[ii]
                     b              = 2.0 - Gravity * ( 2.0 * Eta_F_hat + H_hat ) / E_F_1[ii]
                     c              = 1 - (Gravity * Eta_F_hat/E_F_1[ii] ) - Q_F_hat_S/( 2.0 * E_F_1[ii] * (A_F_hat**2.0) )
 
-                    if ((b+1)**(2.0) - 4.0 * a * c < 0.0:
+                    if ((b+1)**(2.0) - 4.0 * a * c) < 0.0:
                         print(" Fatal error: negative" )
                         check = input(" Error: press ENTER to exit ")
                         sys.exit()
 
-                    Eta_Epsilon1   = ( A_F_hat / B_F_hat ) * ( ( -b-1 + ( ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ) ) / ( 2 * a ) )
-                    Eta_Epsilon2   = ( A_F_hat / B_F_hat ) * ( ( -b-1 - ( ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ) ) / ( 2 * a ) )
+                    Eta_Epsilon1   = ( A_F_hat / B_F_hat ) * ( -b-1 + ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ))  / ( 2 * a ) 
+                    Eta_Epsilon2   = ( A_F_hat / B_F_hat ) * ( -b-1 - ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ))  / ( 2 * a ) 
                 
-                    if abs(Eta_Epsilon1) < abs(Eta_Epsilon2)
+                    if abs(Eta_Epsilon1) < abs(Eta_Epsilon2):
                         Eta_Epsilon    =  Eta_Epsilon1
-                    else
+                    else:
                         Eta_Epsilon    =  Eta_Epsilon2
                     
                     Eta_F_1[ii]  = Eta_F_hat + Eta_Epsilon
@@ -286,9 +293,9 @@ class Solver:
                     x = Eta_Epsilon/H_hat
                     Alfa_Epsilon  = 2 * E_F_1[ii] * (A_F_hat**2.0) * ( a * (x**2.0) + b * x + c )
                     Q_F_1[ii] = ( Q_F_hat_S+Alfa_Epsilon )**(0.5)
-                    Q_check = ( 2*((A_F_1[ii])**(2.0)) * ( E_F_1[ii]-Gravity*E_F_1[ii] )   ) **(0.5)
-                    if Q_check- Q_F_1[ii] <0:
-                        print(' Error: Q at the face is not consistent ')
+                    Q_check = ( 2*((A_F_1[ii])**(2.0)) * ( E_F_1[ii]-Gravity*Eta_F_1[ii] )   ) **(0.5)
+                    if abs(Q_check- Q_F[ii]) >0.01:
+                        print(' Error: Q at the face is not consistent, %30.20f %30.20f' % (Q_check, Q_F_1[ii]))
                         check = input(" Error: press ENTER to exit ")
                         sys.exit()
                     U_F_1[ii]   = Q_F_1[ii] / A_F_1[ii]
@@ -315,8 +322,7 @@ class Solver:
             if (nn%Plot2) == 0:
                 RealTime = round(nn*DT,5)
                 TITLE = "k-2 at time: " + str(RealTime)
-                Draw.Plot_Full(3, N_Cel            if nn < slowness:ls, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
-
+                Draw.Plot_Full(3, N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
             for ii in range(N_Cells):
                 F_q_1[ii*2  ] = Gravity * C_1[ii] * V_1[ii] * ( ( U_F_1[ii] + U_1[ii]     )**2.0) / 8.0
                 F_q_1[ii*2+1] = Gravity * C_1[ii] * V_1[ii] * ( ( U_1[ii]   + U_F_1[ii+1] )**2.0) / 8.0

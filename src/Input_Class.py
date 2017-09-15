@@ -152,12 +152,6 @@ class Input_Info:
         print(" ========== Input Class Ends ==========")
         print()
 
-        Temp       = self.File_Input.readline().split("\n")
-        Temp       = self.File_Input.readline().split("\n")
-        Temp       = self.File_Input.readline().split("\n")
-        self.InterpolationType = int(Temp[0])  # Interpolation type
-        print(" Downstream water depth is:           %f" % self.V_in)
-
     # -- Class destructor
     def __del__(self):   
         print(" Closing the input file ... ")

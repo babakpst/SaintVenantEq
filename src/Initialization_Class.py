@@ -40,7 +40,6 @@ class Initialization:
         self.h_dw       = self.Disc.h_dw
         self.Q_Up       = self.Disc.Q_Up
         self.N_Cells    = self.Disc.N_Cells
-        self.InterpolationType = self.Disc.InterpolationType
 
         self.L[:]   = self.Disc.Length_Cell[:]
         self.Z[:]   = self.Disc.Z_Cell[:]
@@ -54,10 +53,9 @@ class Initialization:
         for ii in range( self.Disc.N_Cells ):
             self.V[ii] = (self.Disc.V_in)* (1+  ( float(ii)/(self.Disc.N_Cells))* (self.Disc.V_ratio)    )
 
-
         for ii in range( self.Disc.N_Cells ):
-            self.Q[ii] = 0
-            #self.Q[ii] = self.Disc.Q_Up * (self.Disc.N_Cells - ii)/self.Disc.N_Cells
+            #self.Q[ii] = 0
+            self.Q[ii] = self.Disc.Q_Up * (self.Disc.N_Cells - ii)/self.Disc.N_Cells
         #self.Q[0] = self.Disc.Q_Up
 
 

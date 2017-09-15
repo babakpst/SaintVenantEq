@@ -18,15 +18,18 @@
 #
 #####################################################################
 
-def main():
+def main(arg):
 
 
     # Import built-in libraries =======================================================================
     # import numpy as np --delete
 
     # Import classes ==================================================================================
+    import sys
     import Solver_Class
-
+    import math  # <delete>
+    import os  # <delete>  You can create/del dir using this module
+    import time  # time.sleep(2)
 
     # Code begins =====================================================================================
     print()
@@ -48,7 +51,8 @@ def main():
     print()
 
 if __name__ == '__main__':
-     main()
+    import sys    
+    main(sys.argv)
 
 
 
