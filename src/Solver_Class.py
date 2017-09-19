@@ -5,7 +5,7 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/31/2017
-# Latest update: 08/15/2017
+# Latest update: 09/20/2017
 #
 # Comment: This class conducts the numerical solution of the Saint-Venant equation
 #
@@ -18,14 +18,14 @@ class Solver:
         import numpy as np
         import sys
 
-        import Initialization_Class
-        import Visualization_Class
+        import Initialization_Class as Initial
+        import Visualization_Class  as Visual
 
         Gravity = 9.81
-        Draw = Visualization_Class.Visualization()
+        Draw = Visual.Visualization()
 
         #def RK2(self):
-        Ex = Initialization_Class.Initialization()
+        Ex = Initial.Initialization()
 
         print(" ========== Solver Class ==========")
         print(" Solving the DE ...")
@@ -38,13 +38,13 @@ class Solver:
         DT      = Ex.Time_Step
 
 
-        L    = np.zeros(N_Cells, dtype=np.float64 )
-        Z    = np.zeros(N_Cells, dtype=np.float64 )
+        L    = np.zeros(N_Cells,     dtype=np.float64 )
+        Z    = np.zeros(N_Cells,     dtype=np.float64 )
         Z_F  = np.zeros(N_Cells*2+1, dtype=np.float64 )
-        M    = np.zeros(N_Cells, dtype=np.float64 )
-        B    = np.zeros(N_Cells, dtype=np.float64 )
-        Fr   = np.zeros(N_Cells, dtype=np.float64 )
-        X    = np.zeros(N_Cells, dtype=np.float64 )
+        M    = np.zeros(N_Cells,     dtype=np.float64 )
+        B    = np.zeros(N_Cells,     dtype=np.float64 )
+        Fr   = np.zeros(N_Cells,     dtype=np.float64 )
+        X    = np.zeros(N_Cells,     dtype=np.float64 )
         X_F  = np.zeros(N_Cells*2+1, dtype=np.float64 )
         
         Q    = np.zeros(N_Cells, dtype=np.float64 )
@@ -103,8 +103,8 @@ class Solver:
         X_F[:] = Ex.X_F[:]
 
         slowness = 0
-        Plot1 = 1000
-        Plot2 = 2000
+        Plot1 = 5000
+        Plot2 = 120000
         h_upstream = V[0]/(B[0]*L[0])
 
         print(" Time marching ... ")
@@ -178,7 +178,7 @@ class Solver:
                     else:
                         Eta_Epsilon    =  Eta_Epsilon2
 
-                    print("  Eta_Epsilon  %3d: %30.20f" % (ii,Eta_Epsilon))  # <delete> delete after debugging
+                    #print("  Eta_Epsilon  %3d: %30.20f" % (ii,Eta_Epsilon))  # <delete> delete after debugging
 
                     Eta_F[ii]  = Eta_F_hat + Eta_Epsilon
                     A_F[ii]    = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
@@ -188,14 +188,15 @@ class Solver:
 
                     #print(" Alfa_Epsilon %d:  %25.20f %25.20f %25.20f %25.20f %25.20f %25.20f %25.20f" % (ii, E_F[ii], A_F_hat, a, b, c, x, Alfa_Epsilon))  # <delete> delete after debugging
 
-                    if ( Q_F_hat_S + Alfa_Epsilon )<0.0:
-                        print("  Warning")
+                    if ( Q_F_hat_S + Alfa_Epsilon ) < 0.0:
+                        print("  Warning %5d %5d" % (nn,ii ))
+                        Alfa_Epsilon = 0.0
                     Q_F[ii] = ( Q_F_hat_S + Alfa_Epsilon )**(0.5)
-                    Q_check = (   2*((A_F[ii])**(2.0)) * ( E_F[ii]-Gravity*Eta_F[ii] )   ) **(0.5)
+                    Q_check = ( 2*( (A_F[ii])**(2.0) ) * ( E_F[ii]-Gravity*Eta_F[ii] )   ) **(0.5)
                     if abs(Q_check- Q_F[ii]) >0.01:
-                        print(' Error: Q at the face is not consistent, %30.20f %30.20f' % (Q_check, Q_F[ii]))
+                        print(' Error: Q at the face is not consistent, %5d %5d %30.20f %30.20f' % (nn,ii,Q_check, Q_F[ii]))
                         check = input(" Error: press ENTER to exit ")
-                        sys.exit()
+                        #sys.exit()
                     U_F[ii]   = Q_F[ii] / A_F[ii]
 
                 elif ii == N_Cells: # Boundary condition at face N+1/2
@@ -217,10 +218,10 @@ class Solver:
                     #    sys.exit()
 
             # <delete>
-            if (nn%Plot2) == 0:
-                RealTime = round(nn*DT,5)
-                TITLE = "k-1 at time: " + str(RealTime)
-                Draw.Plot_Full(2,N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
+            #if (nn%Plot2) == 0:
+            #    RealTime = round(nn*DT,5)
+            #    TITLE = "k-1 at time: " + str(RealTime)
+            #    Draw.Plot_Full(2,N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
 
             for ii in range(N_Cells):
                 F_q[ii*2  ] = Gravity * C[ii] * V[ii] * ( ( U_F[ii] + U[ii]     )**2.0) / 8.0
@@ -248,10 +249,10 @@ class Solver:
               Q_Upstream = Ex.Q_Up
 
             # <delete>
-            if (nn%Plot2) == 0:
-                RealTime = round(nn*DT,5)
-                TITLE = " at half time: " + str(RealTime)
-                Draw.Plot_at_Cell(N_Cells, X, Z, Q_1, V_1, Eta_1, U_1, E_1, A_1, TITLE)
+            #if (nn%Plot2) == 0:
+            #    RealTime = round(nn*DT,5)
+            #    TITLE = " at half time: " + str(RealTime)
+            #    Draw.Plot_at_Cell(N_Cells, X, Z, Q_1, V_1, Eta_1, U_1, E_1, A_1, TITLE)
 
             for ii in range(N_Cells+1):
                 if ii==0: # Boundary condition at face 1/2
@@ -295,9 +296,9 @@ class Solver:
                     Q_F_1[ii] = ( Q_F_hat_S+Alfa_Epsilon )**(0.5)
                     Q_check = ( 2*((A_F_1[ii])**(2.0)) * ( E_F_1[ii]-Gravity*Eta_F_1[ii] )   ) **(0.5)
                     if abs(Q_check- Q_F[ii]) >0.01:
-                        print(' Error: Q at the face is not consistent, %30.20f %30.20f' % (Q_check, Q_F_1[ii]))
+                        print(' Error: Q at the face is not consistent, %5d %5d %30.20f %30.20f' % (nn,ii,Q_check, Q_F[ii]))
                         check = input(" Error: press ENTER to exit ")
-                        sys.exit()
+                        #sys.exit()
                     U_F_1[ii]   = Q_F_1[ii] / A_F_1[ii]
 
                 elif ii == N_Cells: # Boundary condition at face N+1/2
@@ -319,10 +320,10 @@ class Solver:
                     #    check = input(" Error: press ENTER to exit ")
                     #    sys.exit()
             # <delete>
-            if (nn%Plot2) == 0:
-                RealTime = round(nn*DT,5)
-                TITLE = "k-2 at time: " + str(RealTime)
-                Draw.Plot_Full(3, N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
+            #if (nn%Plot2) == 0:
+            #    RealTime = round(nn*DT,5)
+            #    TITLE = "k-2 at time: " + str(RealTime)
+            #    Draw.Plot_Full(3, N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, E_1, E_F_1, A_1, A_F_1, TITLE)
             for ii in range(N_Cells):
                 F_q_1[ii*2  ] = Gravity * C_1[ii] * V_1[ii] * ( ( U_F_1[ii] + U_1[ii]     )**2.0) / 8.0
                 F_q_1[ii*2+1] = Gravity * C_1[ii] * V_1[ii] * ( ( U_1[ii]   + U_F_1[ii+1] )**2.0) / 8.0
