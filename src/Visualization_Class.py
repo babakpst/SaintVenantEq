@@ -110,8 +110,12 @@ class Visualization:
 
         #plt.pause(0.01)
         #plt.draw
-        #plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
-        plt.show() # <modify> See why the execution stops when the the command gets here. 
+        plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
+        #plt.show() # <modify> See why the execution stops when the the command gets here. 
+        FileName = T +'.jpg'
+        print(FileName)
+        plt.savefig(FileName)
+        plt.close(fig)  
 
     @staticmethod
     def Plot_Full(iii, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T):
