@@ -92,14 +92,14 @@ class Solver:
 
         # Initialization 
         print(" Initialization ... ")
-        Q[:] = Ex.Q[:]
-        V[:] = Ex.V[:]
-        L[:] = Ex.L[:]
-        Z[:] = Ex.Z[:]
+        Q[:]   = Ex.Q[:]
+        V[:]   = Ex.V[:]
+        L[:]   = Ex.L[:]
+        Z[:]   = Ex.Z[:]
         Z_F[:] = Ex.Z_F[:]
-        M[:] = Ex.M[:]
-        B[:] = Ex.B[:]
-        X[:] = Ex.X[:]
+        M[:]   = Ex.M[:]
+        B[:]   = Ex.B[:]
+        X[:]   = Ex.X[:]
         X_F[:] = Ex.X_F[:]
 
         slowness = 0
@@ -135,8 +135,9 @@ class Solver:
             if (nn%Plot1) == 0:
                 print(Q_Upstream)
                 RealTime = round(nn*DT,5)
-                TITLE = " at time: " + str(RealTime)
-                Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE)
+                TITLE1 = Ex.Output_Dir + "/" +  " at time: " + str(RealTime)
+                TITLE2 = " at time: " + str(RealTime)
+                Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE1, TITLE2)
 
             for ii in range(N_Cells+1):
                 if ii==0: # Boundary condition at face 1/2
@@ -170,8 +171,8 @@ class Solver:
                         check = input(" Error: press ENTER to exit ")
                         sys.exit()
 
-                    Eta_Epsilon1   = ( A_F_hat / B_F_hat ) *     ( -b-1 + ( ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ) )) / ( 2 * a ) 
-                    Eta_Epsilon2   = ( A_F_hat / B_F_hat ) *     ( -b-1 - ( ( ((b+1)**(2.0) - 4.0 * a * c )**(0.5) ) )) / ( 2 * a ) 
+                    Eta_Epsilon1   = ( A_F_hat / B_F_hat ) * ( -b-1 + (  ( (b+1)**2.0 - 4.0 * a * c )**0.5 ) ) / ( 2 * a ) 
+                    Eta_Epsilon2   = ( A_F_hat / B_F_hat ) * ( -b-1 - (  ( (b+1)**2.0 - 4.0 * a * c )**0.5 ) ) / ( 2 * a ) 
                 
                     if abs(Eta_Epsilon1) < abs(Eta_Epsilon2):
                         Eta_Epsilon    =  Eta_Epsilon1
@@ -195,15 +196,16 @@ class Solver:
                     Q_check = ( 2*( (A_F[ii])**(2.0) ) * ( E_F[ii]-Gravity*Eta_F[ii] )   ) **(0.5)
                     if abs(Q_check- Q_F[ii]) >0.01:
                         print(' Error: Q at the face is not consistent, %5d %5d %30.20f %30.20f' % (nn,ii,Q_check, Q_F[ii]))
-                        check = input(" Error: press ENTER to exit ")
+                        #check = input(" Error: press ENTER to exit ")
                         #sys.exit()
                     U_F[ii]   = Q_F[ii] / A_F[ii]
 
                 elif ii == N_Cells: # Boundary condition at face N+1/2
                     Delta_Z   = L[ii-1] * ( ( Z[ii-2]-Z[ii-1] )/( L[ii-2]+L[ii-1] )  )
                     Z_N1      = Z[ii-1] - Delta_Z
-                    Eta_F[ii] = h_dw
-                    A_F[ii]   = (Eta_F[ii] - Z_N1 ) * B[ii-1]
+                    Z_N1      = 0.0   # <modify>
+                    Eta_F[ii] = h_dw + Z_N1
+                    A_F[ii]   = h_dw * B[ii-1]
                     #if Eta[ii-1]<Eta_F[ii]:
                     #    print(" Fatal error: Downstream boundary condition: %d , %d , %f , %f" % (ii,nn,Eta[ii-1],Eta_F[ii]))    
                     #    check = input(" Error: press ENTER to exit ")
@@ -229,7 +231,7 @@ class Solver:
 
             for ii in range(N_Cells): # To find k1 in the Runge-Kutta method and find the solution at n+1/2
                 k_1V[ii]  =  DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
-                k_1Q[ii]  = (DT / L[ii]) * ( Q_F[ii] * U_F[ii] - Q_F[ii+1] * U_F[ii+1] + Gravity * A_F[ii]* Eta_F[ii] - Gravity * A_F[ii+1]* Eta_F[ii+1] - F_q[2*ii] - F_q[2*ii+1] ) # <modify> remove
+                k_1Q[ii]  = ( DT / L[ii] ) * ( Q_F[ii] * U_F[ii] - Q_F[ii+1] * U_F[ii+1] + Gravity * A_F[ii]* Eta_F[ii] - Gravity * A_F[ii+1]* Eta_F[ii+1] - F_q[2*ii  ] - F_q[2*ii+1] ) # <modify> remove
                 # Solution at "n+1/2"
                 V_1[ii]   = V[ii] + 0.5* k_1V[ii]
                 Q_1[ii]   = Q[ii] + 0.5* k_1Q[ii]  # <modify> We really don't need to define k_1v and k_1q, just for the clarity of the code.
@@ -297,14 +299,15 @@ class Solver:
                     Q_check = ( 2*((A_F_1[ii])**(2.0)) * ( E_F_1[ii]-Gravity*Eta_F_1[ii] )   ) **(0.5)
                     if abs(Q_check- Q_F[ii]) >0.01:
                         print(' Error: Q at the face is not consistent, %5d %5d %30.20f %30.20f' % (nn,ii,Q_check, Q_F[ii]))
-                        check = input(" Error: press ENTER to exit ")
+                        #check = input(" Error: press ENTER to exit ")
                         #sys.exit()
                     U_F_1[ii]   = Q_F_1[ii] / A_F_1[ii]
 
                 elif ii == N_Cells: # Boundary condition at face N+1/2
                     Delta_Z   = L[ii-1] * ( ( Z[ii-2]-Z[ii-1] )/( L[ii-2]+L[ii-1] )  )  # <remove> after debugging
                     Z_N1      = Z[ii-1] - Delta_Z  # <remove> after debugging
-                    Eta_F_1[ii] = h_dw
+                    Z_N1 =0.0 # <modify>
+                    Eta_F_1[ii] = h_dw + Z_N1
                     A_F_1[ii]   = (Eta_F_1[ii] - Z_N1 ) * B[ii-1]
                     #if Eta_1[ii-1]<Eta_F_1[ii]:
                     #    print(" Fatal error: Downstream boundary condition: %d , %d , %f , %f" % (ii,nn,Eta_1[ii-1],Eta_F[ii]))    

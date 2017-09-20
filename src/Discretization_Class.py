@@ -16,6 +16,7 @@ class Discretization:
 
         # Reading data from the input file 
         self.Experiment = Input_Class.Input_Info()
+        self.Output_Dir = self.Experiment.Output_Dir
 
         print(" ========== Discretization Class ==========")
         print(" Discretization of the domain ...")
