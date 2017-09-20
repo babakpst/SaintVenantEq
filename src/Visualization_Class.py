@@ -17,7 +17,7 @@ class Visualization:
         pass
 
     @staticmethod
-    def Plot_at_Cell(N, X, Z, Q, V, Eta, U, E, A, T):
+    def Plot_at_Cell(N, X, Z, Q, V, Eta, U, E, A, T1, T2):
         import numpy as np
         import matplotlib.pyplot as plt
         
@@ -32,7 +32,7 @@ class Visualization:
         Z_Arr   = np.zeros(N, dtype = np.float64)
         A_Arr   = np.zeros(N, dtype = np.float64)
 
-        Title      = T
+        Title      = T2
         Q_Arr[:]   = Q[:]
         V_Arr[:]   = V[:]
         Eta_Arr[:] = Eta[:]
@@ -112,9 +112,14 @@ class Visualization:
         #plt.draw
         plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
         #plt.show() # <modify> See why the execution stops when the the command gets here. 
-        FileName = T +'.jpg'
+        FileName = T1 +'.jpg'
         print(FileName)
         plt.savefig(FileName)
+
+        #savefig(fname, dpi=None, facecolor='w', edgecolor='w', orientation='portrait', papertype=None, format=None, transparent=False, bbox_inches=None, pad_inches=0.1, frameon=None)
+
+
+
         plt.close(fig)  
 
     @staticmethod
