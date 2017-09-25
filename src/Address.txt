@@ -1,5 +1,5 @@
 Input file name:
-ex1
+ex0
 
 Input directory:
 /data2/Babak/MyDocuments/Codes/GitHub/SVE_Energy/input

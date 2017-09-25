@@ -20,7 +20,8 @@ class Visualization:
     def Plot_at_Cell(N, X, Z, Q, V, Eta, U, E, A, T1, T2):
         import numpy as np
         import matplotlib.pyplot as plt
-        
+
+
         print(" This is the visualization class")
         
         Q_Arr   = np.zeros(N, dtype = np.float64)
@@ -53,7 +54,7 @@ class Visualization:
         ax1.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
 
         #plt.title("SOLUTION: Water flow"+Title, fontsize = 16)
-        plt.title("SOLUTION: "+Title, fontsize = 16)
+        plt.title("Solution "+Title, fontsize = 16)
         #plt.xlabel("Distance (m)",          fontsize=12)
         plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
 
@@ -113,17 +114,12 @@ class Visualization:
         plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
         #plt.show() # <modify> See why the execution stops when the the command gets here. 
         FileName = T1 +'.jpg'
-        print(FileName)
         plt.savefig(FileName)
-
         #savefig(fname, dpi=None, facecolor='w', edgecolor='w', orientation='portrait', papertype=None, format=None, transparent=False, bbox_inches=None, pad_inches=0.1, frameon=None)
-
-
-
         plt.close(fig)  
 
     @staticmethod
-    def Plot_Full(iii, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T):
+    def Plot_Full(iii, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T1,T2):
         import numpy as np
         import matplotlib.pyplot as plt
         import matplotlib.ticker as tkr
@@ -137,7 +133,7 @@ class Visualization:
         Z_Arr   = np.zeros(N*2+1, dtype = np.float64)
         A_Arr   = np.zeros(N*2+1, dtype = np.float64)
 
-        Title      = T
+        Title      = T2
         X_Arr[:]   = X_F[:]
         Z_Arr[:]   = Z_F[:]
 
@@ -191,6 +187,15 @@ class Visualization:
         #plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Energy (m/s)",  fontsize=12)
 
+        #ax4 = fig.add_subplot(324, xlim = (0,2000), ylim = (-1,3))
+        ax4 = fig.add_subplot(324)
+        ax4.grid()
+        ax4.plot(X_Arr, U_Arr, label ="Velocity" , color = "c", linewidth = 2.0)
+
+        #plt.title("SOLUTION: Water Velocity"+Title, fontsize = 16)
+        #plt.xlabel("Distance (m)", fontsize=12)
+        plt.ylabel("Velocity (m/s)", fontsize=12)
+
         ax5 = fig.add_subplot(325)
         ax5.grid()
         ax5.plot(X_Arr, Q_Arr, label ="Water flow (Q)" , color = "c", linewidth = 2.0)
@@ -211,7 +216,13 @@ class Visualization:
         mng.resize(*mng.window.maxsize())
 
         #plt.pause(0.01)
-        plt.show() # <modify> See why the execution stops when the the command gets here. 
+        #plt.draw
+        plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
+        #plt.show() # <modify> See why the execution stops when the the command gets here. 
+        FileName = T1 +'.jpg'
+        plt.savefig(FileName)
+        #savefig(fname, dpi=None, facecolor='w', edgecolor='w', orientation='portrait', papertype=None, format=None, transparent=False, bbox_inches=None, pad_inches=0.1, frameon=None)
+        plt.close(fig)  
 
     @staticmethod
     def Plot(N, X, Z, T):

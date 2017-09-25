@@ -58,7 +58,6 @@ class Solver:
         C    = np.zeros(N_Cells, dtype=np.float64 )
         Gamma= np.zeros(N_Cells, dtype=np.float64 )  # <modify> This needs to be modified if we are dealing with the variable channels.
 
-
         # <modify> double check the defined variables here. Delete if not necessary.
 
         Q_1   = np.zeros(N_Cells, dtype=np.float64 )
@@ -103,8 +102,8 @@ class Solver:
         X_F[:] = Ex.X_F[:]
 
         slowness = 0
-        Plot1 = 5000
-        Plot2 = 120000
+        Plot1 = 2000
+        Plot2 = 2000
         h_upstream = V[0]/(B[0]*L[0])
 
         print(" Time marching ... ")
@@ -135,8 +134,8 @@ class Solver:
             if (nn%Plot1) == 0:
                 print(Q_Upstream)
                 RealTime = round(nn*DT,5)
-                TITLE1 = Ex.Output_Dir + "/" +  " at time: " + str(RealTime)
-                TITLE2 = " at time: " + str(RealTime)
+                TITLE1 = Ex.Output_Dir + "/" +  "Time_" + str(RealTime)+"_s"
+                TITLE2 = "at time: " + str(RealTime) + " s"
                 Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE1, TITLE2)
 
             for ii in range(N_Cells+1):
@@ -220,10 +219,14 @@ class Solver:
                     #    sys.exit()
 
             # <delete>
-            #if (nn%Plot2) == 0:
-            #    RealTime = round(nn*DT,5)
-            #    TITLE = "k-1 at time: " + str(RealTime)
-            #    Draw.Plot_Full(2,N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE)
+            if (nn%Plot2) == 0:
+                RealTime = round(nn*DT,5)
+                TITLE1 = Ex.Output_Dir + "/" +  "Full__time_" + str(RealTime)+"_s"
+                TITLE2 = "Full results at time: " + str(RealTime) + " s"
+                Draw.Plot_Full(2,N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE1, TITLE2)
+
+
+
 
             for ii in range(N_Cells):
                 F_q[ii*2  ] = Gravity * C[ii] * V[ii] * ( ( U_F[ii] + U[ii]     )**2.0) / 8.0
