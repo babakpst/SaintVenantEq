@@ -30,24 +30,19 @@ def main(arg):
     import math  # <delete>
     import os  # <delete>  You can create/del dir using this module
     import time  # time.sleep(2)
+    from datetime import datetime  # Use
 
     # Code begins =====================================================================================
     print()
-    print('''
-    
-     -------- 1D Saint-Venant Equation based on the face reconstruction --------
-     ---------- Developers:: Babak Poursartip/Ben R. Hodges/Frank Liu ----------
-    
-     ''')
+    print("{:^80}".format("-------- 1D Saint-Venant Equation based on the face reconstruction --------"))
+    print("{:^80}".format("---------- Developers:: Babak Poursartip/Ben R. Hodges/Frank Liu ----------"))
     print()
-    print()
-    print(" Simulation starts ...")
+    print("{:^80}".format(" Simulation starts ..."))
     print()
 
     Results = Solver_Class.Solver()
-    #Results2=Results.RK2()
 
-    print(" Simulation was conducted successfully. ")
+    print("{:80}".format("---------- Simulation was conducted successfully ----------"))
     print()
 
 if __name__ == '__main__':

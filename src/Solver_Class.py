@@ -1,4 +1,5 @@
 
+
 #####################################################################
 #
 # Code developed by: Dr. Babak Poursartip
@@ -103,13 +104,11 @@ class Solver:
         X_F[:] = Ex.X_F[:]
 
         slowness = 0
-        Plot1 = 2000
-        Plot2 = 2000
+        Plot1 = 1000
+        Plot2 = 1000
         h_upstream = V[0]/(B[0]*L[0])
 
-
-        Del_Coe = 2.0  # <delete> this coefficient in the entire code once you finalize the system
-
+        Del_Coe = 1.0  # <delete> this coefficient in the entire code once you finalize the system
 
         print(" Time marching ... ")
         for nn in range(N_Steps):
@@ -121,20 +120,22 @@ class Solver:
               Q_Upstream = Ex.Q_Up        
         
             #########################################################
+            repeat = -1 
             Check_Energy = "False"
             while Check_Energy == "False":
+                repeat += 1 
                 for ii in range(N_Cells):
                     A[ii]   = V[ii] / L[ii]
                     U[ii]   = Q[ii] / A[ii]
                     Eta[ii] = A[ii] / B[ii] + Z[ii]
-                    E[ii]   = ((U[ii])**2.0) /(float(2)) +  Gravity*Eta[ii]
+                    E[ii]   = ((U[ii])**2.0) /2.0 +  Gravity*Eta[ii]
                     l_P[ii] = B[ii] + 2.0 * (Eta[ii]-Z[ii])
                     R_h[ii] = A[ii] / l_P[ii]
                     C[ii]   = ((M[ii])**2.0) / ((R_h[ii])**(4.0/3.0))
   
-                    Fr[ii]  = U[ii]/((Gravity * (Eta[ii] - Z[ii]) )**(0.5))
+                    Fr[ii]  = U[ii]/((Gravity * (Eta[ii] - Z[ii]) )**0.5)
                     if Fr[ii] >= 1.0:
-                        print("Flow is not subcritical")
+                        print("Flow is not subcritical %d %d %f" % (nn, ii, Fr[ii]))
                         check = input(" Error: press ENTER to exit ")
                         sys.exit()
 
@@ -142,8 +143,8 @@ class Solver:
                 if (nn%Plot1) == 0:
                     print(Q_Upstream)
                     RealTime = round(nn*DT,5)
-                    TITLE1 = Ex.Output_Dir + "/" +  "Time_" + str(RealTime)+"_s"
-                    TITLE2 = "at time: " + str(RealTime) + " s"
+                    TITLE1 = Ex.Output_Dir + "/" +  "Time_" + str(RealTime)+"_s__Repeat_" + str(repeat)
+                    TITLE2 = "at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
                     Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE1, TITLE2)
 
                 for ii in range(N_Cells+1):
@@ -173,8 +174,8 @@ class Solver:
                         b              = 2.0 - Gravity * ( 2.0 * Eta_F_hat + H_hat ) / E_F[ii]
                         c              = 1 - (Gravity * Eta_F_hat/E_F[ii] ) - Q_F_hat_S/( 2.0 * E_F[ii] * (A_F_hat**2.0) )
 
-                        if ((b+1)**(2.0) - 4.0 * a * c )< 0.0:
-                            print(" Fatal error: negative" )
+                        if ((b+1)**2.0 - 4.0 * a * c ) < 0.0:
+                            print(" Fatal error: negative %f %f %f" % (a,b,c) )
                             check = input(" Error: press ENTER to exit ")
                             sys.exit()
 
@@ -197,12 +198,12 @@ class Solver:
                         #print(" Alfa_Epsilon %d:  %25.20f %25.20f %25.20f %25.20f %25.20f %25.20f %25.20f" % (ii, E_F[ii], A_F_hat, a, b, c, x, Alfa_Epsilon))  # <delete> delete after debugging
 
                         if ( Q_F_hat_S + Alfa_Epsilon ) < 0.0:
-                            print("  Warning %5d %5d" % (nn,ii ))
+                            print(" Warning %5d %5d" % (nn,ii ))
                             Alfa_Epsilon = 0.0
-                            check = input(" Error: press ENTER to exit ")
-                            sys.exit()                        
+                            #check = input(" Error: press ENTER to exit ")
+                            #sys.exit()                        
 
-                        Q_F[ii] = ( Q_F_hat_S + Alfa_Epsilon )**(0.5)
+                        Q_F[ii] = ( Q_F_hat_S + Alfa_Epsilon )**0.5
                         Q_check = ( 2*( (A_F[ii])**(2.0) ) * ( E_F[ii]-Gravity*Eta_F[ii] )   ) **(0.5)
 
                         if abs(Q_check- Q_F[ii]) >0.01:
@@ -233,12 +234,16 @@ class Solver:
                     # Modifying the Energy at the face
 
                 Check_Energy = "True"
-                for ii in range(N_Cells):
+                for ii in range(1,N_Cells):
                     if E[ii] > E[ii-1]:
+                        print(" Energy %d %d %f %f" % (ii-1, ii, E[ii-1], E[ii] ))
                         Check_Energy = "False"
-                        print(" Modifying the solution")
+
                         Delta_Energy = E[ii-1] - E[ii] 
                         Delta_Q = (Epsilon_E - Delta_Energy) / ( DT * ( ( Del_Coe*U_F[ii] -U[ii-1] ) * ( U[ii-1]/V[ii-1] ) +  ( Del_Coe*U_F[ii] -U[ii] ) * ( U[ii]/V[ii] ) + Gravity * (1.0/(B[ii-1]*L[ii-1]) + 1.0/(B[ii]*L[ii])  ) ) )
+
+                        print(" Modifying the solution %d %d %f %f %f" % (nn, ii, Delta_Q, Q[ii-1], Q[ii]  ) )
+                        #check = input(" Press ENTER to continue ")
 
                         Q[ii]   = Q[ii]  - Del_Coe * DT/L[ii] * Delta_Q * U_F[ii]
                         Q[ii-1] = Q[ii-1]+ Del_Coe * DT/L[ii] * Delta_Q * U_F[ii]
@@ -246,12 +251,11 @@ class Solver:
                         V[ii]   = V[ii]  - DT * Delta_Q 
                         V[ii-1] = V[ii-1]+ DT * Delta_Q 
 
-
             # <delete>
             if (nn%Plot2) == 0:
                 RealTime = round(nn*DT,5)
-                TITLE1 = Ex.Output_Dir + "/" +  "Full__time_" + str(RealTime)+"_s"
-                TITLE2 = "Full results at time: " + str(RealTime) + " s"
+                TITLE1 = Ex.Output_Dir + "/" +  "Full__time_" + str(RealTime)+"_s__Repeat_" + str(repeat)
+                TITLE2 = "Full results at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
                 Draw.Plot_Full(2,N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE1, TITLE2)
 
             for ii in range(N_Cells):
@@ -270,8 +274,10 @@ class Solver:
             else:
                 Q_Upstream = Ex.Q_Up
 
+            repeat = 0 
             Check_Energy = "False"
             while Check_Energy == "False":
+                repeat += 1 
                 for ii in range(N_Cells):  # These are the variables at {n+1}
                     A_1[ii]   = V_1[ii] / L[ii]
                     U_1[ii]   = Q_1[ii] / A_1[ii]
@@ -369,12 +375,16 @@ class Solver:
                         #    sys.exit()
 
                 Check_Energy = "True"
-                for ii in range(N_Cells):
+                for ii in range(1,N_Cells):
                     if E_1[ii] > E_1[ii-1]:
-                        print(" Modifying the solution at the half time step")
+
+                        print(" Energy %d %d %f %f" % (ii-1, ii, E[ii-1], E[ii] ))
                         Check_Energy = "False"
                         Delta_Energy = E_1[ii-1] - E_1[ii] 
                         Delta_Q = (Epsilon_E - Delta_Energy) / ( DT * ( ( Del_Coe*U_F_1[ii] - U_1[ii-1] ) * ( U_1[ii-1]/V_1[ii-1] ) +  ( Del_Coe*U_F_1[ii] -U_1[ii] ) * ( U_1[ii]/V_1[ii] ) + Gravity * (1.0/(B[ii-1]*L[ii-1]) + 1.0/(B[ii]*L[ii])  ) ) )
+
+                        print(" Modifying the solution at the half time step %d %d %f %f %f" % (nn, ii,Delta_Q, Q_1[ii-1], Q_1[ii] ) )
+                        #check = input(" Press ENTER to continue ")
 
                         Q_1[ii]   = Q_1[ii]  - Del_Coe * DT/L[ii] * Delta_Q * U_F_1[ii]
                         Q_1[ii-1] = Q_1[ii-1]+ Del_Coe * DT/L[ii] * Delta_Q * U_F_1[ii]

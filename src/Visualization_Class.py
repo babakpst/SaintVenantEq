@@ -50,7 +50,7 @@ class Visualization:
         #print('#1 Backend:',plt.get_backend())
         #ax1 = fig.add_subplot(321, xlim = (0,1800), ylim = (-5,15))
         ax1 = fig.add_subplot(321)
-        ax1.grid()
+        ax1.grid(True, color='k')   
         ax1.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
 
         #plt.title("SOLUTION: Water flow"+Title, fontsize = 16)
@@ -72,6 +72,7 @@ class Visualization:
         ax3.grid()
         ax3.plot(X_Arr, Eta_Arr, label ="Water Elevation" ,  color = "c", linewidth = 2.0)
         ax3.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
+        ax3.legend()
 
         #plt.title("SOLUTION: Water Elevation"+Title, fontsize = 16)
         #plt.xlabel("Distance (m)", fontsize=12)
