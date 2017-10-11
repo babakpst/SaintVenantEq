@@ -226,13 +226,11 @@ class Visualization:
         plt.close(fig)  
 
     @staticmethod
-    def Plot(N, X, Z, T):
+    def Plot_Domain(N, X, Z, T):
         import numpy as np
         import matplotlib.pyplot as plt
         import matplotlib.ticker as ticker
 
-        print(" This is the visualization class")
-        
         X_Arr = np.zeros(N, dtype = np.float64)
         Z_Arr = np.zeros(N, dtype = np.float64)
 
@@ -241,7 +239,7 @@ class Visualization:
         Z_Arr[:]   = Z[:]
 
         fig, ax = plt.subplots()
-        ax.plot(X_Arr, Z_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
+        ax.plot(X_Arr, Z_Arr, label ="Domain" , color = "r", linewidth = 2.0)
         
         y_labels = ax.get_yticks()
         ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%15.13f'))
