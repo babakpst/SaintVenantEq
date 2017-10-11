@@ -21,6 +21,8 @@ class Initialization:
 
         self.Disc = Discretization_Class.Discretization()
 
+        self.Disc.Discretize()
+
         print(" ========== Initialization Class ==========")
 
         print(" Initialization ...")
@@ -59,7 +61,7 @@ class Initialization:
             #self.Q[ii] = self.Disc.Q_Up * (self.Disc.N_Cells - ii)/self.Disc.N_Cells
         #self.Q[0] = self.Disc.Q_Up
 
-
+        del self.Disc
 
         print(" ========== Initialization Class Ends. ==========")
         print()
