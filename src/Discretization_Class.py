@@ -15,7 +15,9 @@ class Discretization:
     def Discretize(self):
         import Input_Class
         import numpy as np
-        import Visualization_Class
+        import Visualization_Class as Visual
+
+        Draw = Visual.Visualization()
 
         Func = lambda x: 0.2 - 0.05 * ((x-7)-10)**2
 
@@ -39,7 +41,7 @@ class Discretization:
         print(" Calculating the total number of the cells in the domain ... ")
         for ii in range(Temp_No_reaches):
             self.N_Cells += Experiment.Reach_Disc[ii] # Have a check on this <Modify>
-        print("{} {:d}".format("   Total number of cells:   ", self.N_Cells)
+        print("{} {:d}".format("   Total number of cells:   ", self.N_Cells))
 
         self.Length_Cell  = np.zeros(self.N_Cells, dtype=np.float) # Stores the length of each cell
         self.Z_Cell       = np.zeros(self.N_Cells, dtype=np.float) # Stores bottom elevation of each cell
@@ -54,7 +56,7 @@ class Discretization:
         Max_Height = 0
         for ii in range(Temp_No_reaches):  
             Max_Height += Experiment.Reach_Slope[ii] * Experiment.Reach_Length[ii]
-        print("{} {:f}".format(" Maximum height is:", Max_Height)
+        print("{} {:f}".format(" Maximum height is:", Max_Height))
 
         print(" Basic calculations ...")
         Cell_Counter = 0
@@ -69,7 +71,7 @@ class Discretization:
 
                 X_distance = 0.5 * CntrlVolume_Length
                 for jj in range(ii):
-                    X_distance  += Experiment.Reach_Length[ii]
+                    X_distance  += Experiment.Reach_Length[jj]
 
                 for jj in range( Experiment.Reach_Disc[ii] - 1 ):
                     self.Length_Cell[Cell_Counter]  = CntrlVolume_Length
@@ -106,29 +108,33 @@ class Discretization:
                 Max_Height   -= Experiment.Reach_Length[ii] * Experiment.Reach_Slope[ii]
 
             elif Experiment.Reach_Type[ii]==1:
-
                 Height = Max_Height
                 Projection_Length = round(Experiment.Reach_Length[ii]/Experiment.Reach_Disc[ii],10) 
+                print(Projection_Length)
                 X_distance = 0.5 * Projection_Length
+                
+                print("just",ii) # <delete>
 
                 for jj in range(ii):
-                    X_distance  += Experiment.Reach_Length[ii]
+                    print("X-distance: ",X_distance) # <delete>
+                    X_distance  += Experiment.Reach_Length[jj]
 
                 for jj in range( Experiment.Reach_Disc[ii] ):
                     Z_loss = Func (X_distance)
+                    print(X_distance,Z_loss) # <delete>
 
                     self.Length_Cell[Cell_Counter] = (Projection_Length**2 + Z_loss**2)**0.5
                     self.X_Disc[Cell_Counter] = X_distance
                     self.X_Full[Cell_Counter*2] = X_distance - 0.5 * Projection_Length
                     self.X_Full[Cell_Counter*2+1] = X_distance
-                    X_distance += Projection_Length
-                    Total_Length += CntrlVolume_Length
 
                     self.Z_Cell[Cell_Counter]       = Height + Z_loss
-                    self.Z_Full[Cell_Counter*2]     = Height +Func(X_distance - 0.5 * Projection_Length)
+                    self.Z_Full[Cell_Counter*2]     = Height + Func(X_distance - 0.5 * Projection_Length)
                     self.Z_Full[Cell_Counter*2+1]   = Height + Z_loss
                     self.Manning_Cell[Cell_Counter] = Experiment.Reach_Manning[ii]
                     self.Width_Cell[Cell_Counter]   = Experiment.Reach_Width[ii]
+                    X_distance += Projection_Length
+                    Total_Length += Projection_Length
                     Cell_Counter += 1
 
                 Max_Height   -= Experiment.Reach_Length[ii] * Experiment.Reach_Slope[ii]
@@ -146,6 +152,9 @@ class Discretization:
         del Experiment
 
         # Plot the discretized domain
+        # Title = "Discretized domain at the cell level"
+        # Vis =Draw.Plot_Domain(self.N_Cells, self.X_Disc, self.Z_Cell, Title)
+        # Vis =Draw.Plot_Domain(2*self.N_Cells+1, self.X_Full, self.Z_Full, Title)
 
         print(" Discretization ends successfully. ")
         print(" ========== Discretization Class ==========")

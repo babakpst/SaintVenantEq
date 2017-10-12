@@ -110,6 +110,9 @@ class Solver:
 
         Del_Coe = 1.0  # <delete> this coefficient in the entire code once you finalize the system
 
+        #TITLE = "This is it."
+        #Draw.Plot_Domain(N_Cells, X, Z, TITLE)
+
         print(" Time marching ... ")
         for nn in range(N_Steps):
             print(" Time step: %d out of %d " % (nn, N_Steps))
@@ -132,7 +135,7 @@ class Solver:
                     l_P[ii] = B[ii] + 2.0 * (Eta[ii]-Z[ii])
                     R_h[ii] = A[ii] / l_P[ii]
                     C[ii]   = ((M[ii])**2.0) / ((R_h[ii])**(4.0/3.0))
-  
+
                     Fr[ii]  = U[ii]/((Gravity * (Eta[ii] - Z[ii]) )**0.5)
                     if Fr[ii] >= 1.0:
                         print("Flow is not subcritical %d %d %f" % (nn, ii, Fr[ii]))
@@ -309,7 +312,7 @@ class Solver:
                         E_F_1[ii]   = ((U_F_1[ii])**2.0)/(2.0) + Gravity * Eta_F_1[ii]
 
                     elif ii != 0 and ii != N_Cells: # middle cells
-                        E_F_1[ii]        = (L[ii]*  E_1[ii-1] + L[ii-1]*  E_1[ii] )/( L[ii] + L[ii-1] )
+                        E_F_1[ii]      = (L[ii]*  E_1[ii-1] + L[ii-1]*  E_1[ii] )/( L[ii] + L[ii-1] )
                         Eta_F_hat      = (L[ii]*Eta_1[ii-1] + L[ii-1]*Eta_1[ii] )/( L[ii] + L[ii-1] )
                         Q_F_hat_S      = (L[ii]*  ((Q_1[ii-1])**2.0) + L[ii-1]*  ((Q_1[ii])**2.0) )/( L[ii] + L[ii-1] )
                         A_F_hat        = (L[ii]*  A_1[ii-1] + L[ii-1]*  A_1[ii] )/( L[ii] + L[ii-1] ) # <modify> Modify this equation for a variable area
