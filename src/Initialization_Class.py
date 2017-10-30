@@ -24,7 +24,6 @@ class Initialization:
         self.Disc.Discretize()
 
         print(" ========== Initialization Class ==========")
-
         print(" Initialization ...")
 
         self.Q  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
@@ -36,11 +35,12 @@ class Initialization:
         self.B  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.X  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.X_F= np.zeros(self.Disc.N_Cells*2+1, dtype=np.float64 )
+        #self.S  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
 
         self.Total_Time = self.Disc.Total_Time
         self.Time_Step  = self.Disc.Time_Step
-        self.h_dw       = self.Disc.h_dw
-        self.Q_Up       = self.Disc.Q_Up
+        self.h_dw = self.Disc.h_dw
+        self.Q_Up = self.Disc.Q_Up
         self.N_Cells    = self.Disc.N_Cells
         self.Output_Dir = self.Disc.Output_Dir
 
@@ -51,10 +51,12 @@ class Initialization:
         self.B[:]   = self.Disc.Width_Cell[:]
         self.X[:]   = self.Disc.X_Disc[:]
         self.X_F[:] = self.Disc.X_Full[:]
+        #self.S[:]   = self.Disc.S_Disc[:]
 
 
         for ii in range( self.Disc.N_Cells ):
-            self.V[ii] = (self.Disc.V_in)* (1+  ( float(ii)/(self.Disc.N_Cells))* (self.Disc.V_ratio)    )
+            #self.V[ii] = (self.Disc.V_in)* (1+  ( float(ii)/(self.Disc.N_Cells))* (self.Disc.V_ratio)    )
+            self.V[ii] = ( (self.Disc.V_in -self.Z[ii])* self.B[ii] )*self.L[ii]
 
         for ii in range( self.Disc.N_Cells ):
             self.Q[ii] = 0
