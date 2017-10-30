@@ -27,7 +27,7 @@ class Input_Info:
         File = Address.readline().rstrip("\n")  # 2, Input file name
         Temp = Address.readline().rstrip("\n")  # 3
         Temp = Address.readline().rstrip("\n")  # 4
-        Input_Dir  = Address.readline().rstrip("\n")  # 5
+        Input_Dir = Address.readline().rstrip("\n")  # 5
         Temp = Address.readline().rstrip("\n")  # 6
         Temp = Address.readline().rstrip("\n")  # 7
         Output_Dir = Address.readline().rstrip("\n")  # 8

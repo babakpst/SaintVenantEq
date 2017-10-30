@@ -41,6 +41,7 @@ def main(arg):
     print()
 
     Results = Solver_Class.Solver()
+    Results.solve()
 
     print("{:80}".format("---------- Simulation was conducted successfully ----------"))
     print()

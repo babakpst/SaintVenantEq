@@ -19,7 +19,11 @@ class Discretization:
 
         Draw = Visual.Visualization()
 
-        Func = lambda x: 0.2 - 0.05 * ((x-7)-10)**2
+        #Func = lambda x: 0.2 - 0.05 * ((x-7)-10)**2
+        #DFunc = lambda x: -( - 0.05 * 2 * ((x-7)-10))
+
+        Func = lambda x: 0.2 - 0.05 * (x-10)**2
+        DFunc = lambda x: -( - 0.05 * 2 * (x-10))
 
         # Reading data from the input file 
         Experiment = Input_Class.Input_Info()
@@ -45,6 +49,7 @@ class Discretization:
 
         self.Length_Cell  = np.zeros(self.N_Cells, dtype=np.float) # Stores the length of each cell
         self.Z_Cell       = np.zeros(self.N_Cells, dtype=np.float) # Stores bottom elevation of each cell
+        self.S_Cell       = np.zeros(self.N_Cells, dtype=np.float) # Stores bottom elevation of each cell
         self.Z_Full       = np.zeros(self.N_Cells*2+1, dtype=np.float) # Stores bottom elevation of each cell
         self.Manning_Cell = np.zeros(self.N_Cells, dtype=np.float) # Stores the Manning's number of each cell
         self.Width_Cell   = np.zeros(self.N_Cells, dtype=np.float) # Stores the Manning's number of each cell
@@ -98,6 +103,7 @@ class Discretization:
                 self.X_Full[Cell_Counter*2+2]   = X_distance + 0.5 * self.Length_Cell[Cell_Counter] 
                 Height                         -= ( 0.5*Z_loss + 0.5 * self.Length_Cell[Cell_Counter] * Experiment.Reach_Slope[ii] )
 
+                self.S_Cell[Cell_Counter]       = Experiment.Reach_Slope[ii]
                 self.Z_Cell[Cell_Counter]       = Height 
                 self.Z_Full[Cell_Counter*2]     = Height + 0.5 * self.Length_Cell[Cell_Counter] * Experiment.Reach_Slope[ii]
                 self.Z_Full[Cell_Counter*2+1]   = Height 
@@ -110,10 +116,7 @@ class Discretization:
             elif Experiment.Reach_Type[ii]==1:
                 Height = Max_Height
                 Projection_Length = round(Experiment.Reach_Length[ii]/Experiment.Reach_Disc[ii],10) 
-                print(Projection_Length)
                 X_distance = 0.5 * Projection_Length
-                
-                print("just",ii) # <delete>
 
                 for jj in range(ii):
                     print("X-distance: ",X_distance) # <delete>
@@ -121,13 +124,14 @@ class Discretization:
 
                 for jj in range( Experiment.Reach_Disc[ii] ):
                     Z_loss = Func (X_distance)
-                    print(X_distance,Z_loss) # <delete>
+                    #print(X_distance,Z_loss) # <delete>
 
                     self.Length_Cell[Cell_Counter] = (Projection_Length**2 + Z_loss**2)**0.5
                     self.X_Disc[Cell_Counter] = X_distance
                     self.X_Full[Cell_Counter*2] = X_distance - 0.5 * Projection_Length
                     self.X_Full[Cell_Counter*2+1] = X_distance
 
+                    self.S_Cell[Cell_Counter]       = DFunc(X_distance)
                     self.Z_Cell[Cell_Counter]       = Height + Z_loss
                     self.Z_Full[Cell_Counter*2]     = Height + Func(X_distance - 0.5 * Projection_Length)
                     self.Z_Full[Cell_Counter*2+1]   = Height + Z_loss
