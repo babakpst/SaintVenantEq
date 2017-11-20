@@ -6,7 +6,7 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/18/2017
-# Latest update: 09/01/2017
+# Latest update: 11/20/2017
 #
 # Comment: This class processes the input data and provides the initial information for the simulation. 
 #
@@ -15,7 +15,6 @@
 class Initialization:
 
     def __init__(self):
-        # -- Import libs/classes
         import numpy as np
         import Discretization_Class
 
@@ -65,10 +64,10 @@ class Initialization:
 
         del self.Disc
 
-        print(" ========== Initialization Class Ends. ==========")
+        print(" ======== Initialization Class Ends ========")
         print()
 
-    # <modify> Use geometry function and elevation functino, instead of direct definition in the solver function, to make the code a more general one. 
+    # <modify> Use geometry function and elevation function, instead of direct definition in the solver function.
     #  def Geometry_func(self, V, L): # Returns the cross-section area: A
     #    return V/L
 

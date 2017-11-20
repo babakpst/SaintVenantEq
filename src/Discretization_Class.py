@@ -1,11 +1,15 @@
 
-#####################################################################
+###############################################################################
+#
 # Code developed by: Dr. Babak Poursartip
 # Supervised by:     Dr. Ben R. Hodges
+# 
 # Start date:    07/18/2017
-# Latest update: 08/14/2017
+# Latest update: 11/20/2017
+#
 # Comment: This class Discretizes the domain.
-#####################################################################
+#
+###############################################################################
 
 class Discretization:
 
@@ -22,6 +26,7 @@ class Discretization:
         #Func = lambda x: 0.2 - 0.05 * ((x-7)-10)**2
         #DFunc = lambda x: -( - 0.05 * 2 * ((x-7)-10))
 
+        # For now, we define the geometry function directly here, this should be moved to the input file.
         Func = lambda x: 0.2 - 0.05 * (x-10)**2
         DFunc = lambda x: -( - 0.05 * 2 * (x-10))
 
@@ -119,12 +124,12 @@ class Discretization:
                 X_distance = 0.5 * Projection_Length
 
                 for jj in range(ii):
-                    print("X-distance: ",X_distance) # <delete>
+                    print("DEBUG:: X-distance: ",X_distance) # <delete>
                     X_distance  += Experiment.Reach_Length[jj]
 
                 for jj in range( Experiment.Reach_Disc[ii] ):
                     Z_loss = Func (X_distance)
-                    #print(X_distance,Z_loss) # <delete>
+                    #print("DEBUG:: X-distance: ",X_distance,Z_loss) # <delete>
 
                     self.Length_Cell[Cell_Counter] = (Projection_Length**2 + Z_loss**2)**0.5
                     self.X_Disc[Cell_Counter] = X_distance
@@ -150,19 +155,16 @@ class Discretization:
         self.Time_Step  = Experiment.Time_Step
         self.h_dw       = Experiment.h_dw
       
-        if self.N_Cells != Cell_Counter:
+        if self.N_Cells != Cell_Counter: # Check whether the discretization is correct.
             sys.exit("FATAL ERROR: Mismatch between the number of cells! Check the Discretization_Class.")
 
         del Experiment
 
-        # Plot the discretized domain
+        # Plot the discretized domain -- delete after debugging
         # Title = "Discretized domain at the cell level"
         # Vis =Draw.Plot_Domain(self.N_Cells, self.X_Disc, self.Z_Cell, Title)
         # Vis =Draw.Plot_Domain(2*self.N_Cells+1, self.X_Full, self.Z_Full, Title)
 
         print(" Discretization ends successfully. ")
-        print(" ========== Discretization Class ==========")
+        print(" ======== Discretization Class Ends ========")
         print()
-
-
-    # Check on the discretization: if ..._Cell = 0 => ERROR

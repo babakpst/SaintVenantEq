@@ -5,9 +5,9 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/18/2017
-# Latest update: 07/27/2017
+# Latest update: 11/20/2017
 #
-# Comment: This class reads the simulation data from file
+# Comment: This class reads the simulation data from the input file.
 #
 ###############################################################################
 
@@ -21,7 +21,7 @@ class Input_Info:
 
         # Input data ==========================================================
         # -- Read the name of the input file from address file
-        print(" ========== Input Class ==========")
+        print(" ============== Input Class ==============")
         Address = open("Address.txt","r")
         Temp = Address.readline().rstrip("\n")  # 1
         File = Address.readline().rstrip("\n")  # 2, Input file name
@@ -83,13 +83,13 @@ class Input_Info:
         Temp       = self.File_Input.readline().rstrip("\n")
         Temp       = self.File_Input.readline().rstrip("\n")
         self.V_in = float(Temp)  # Control volume at the upstream
-        print("{:40} {:f}".format(" Downstream water depth is:", self.V_in))
+        print("{:40} {:f}".format(" Initial Control Volume is:", self.V_in))
 
         Temp       = self.File_Input.readline().rstrip("\n")
         Temp       = self.File_Input.readline().rstrip("\n")
         Temp       = self.File_Input.readline().rstrip("\n")
         self.V_ratio = float(Temp)  # Control volume change rate along the reach
-        print("{:40} {:f}".format(" Downstream water depth is:", self.V_ratio))
+        print("{:40} {:f}".format(" Control volume change rate along the reach is:", self.V_ratio))
 
         Temp = self.File_Input.readline().rstrip("\n")
         Temp = self.File_Input.readline().rstrip("\n")
@@ -148,7 +148,8 @@ class Input_Info:
             self.Reach_Width[ii] = float(Temp)
             print("The width of reach {:d} is {:f}".format(ii+1, self.Reach_Width[ii]))
         
-        print(" ========== Input Class Ends ==========")
+        
+        print(" ============ Input Class Ends ============")        
         print()
         print(" Closing the input file ... ")
         self.File_Input.close()
