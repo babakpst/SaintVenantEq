@@ -1,9 +1,7 @@
-Input file for the SVE paper.
-
 Name: ex1 - based on the microprocessor paper.
 
 Total run time (in seconds): 
-50000
+6000
 
 Time step (in seconds):
 0.01 
@@ -15,10 +13,10 @@ Downstream water depth (in meters):
 2.0
 
 Initial control volume: ( V = L * B * h)
-160
+200
 
 Control Volume ratio:
-0.25
+0.00
 
 Total number of sections (slopes):
 1
@@ -28,6 +26,9 @@ Total Length (in meter) for each slope:
 
 Total number of segments for each slope:
 200
+
+Geometry of the each reach: Straight or Formulated reach (0: means a straight reach, 1: means a Formulated)
+0
 
 Slope for each slope:
 1.0e-03
