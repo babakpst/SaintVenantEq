@@ -48,18 +48,18 @@ class Visualization:
 
         #plt.switch_backend('TkAgg') #TkAgg (instead Qt4Agg)
         #print('#1 Backend:',plt.get_backend())
-        #ax1 = fig.add_subplot(321, xlim = (0,1800), ylim = (-5,15))
-        ax1 = fig.add_subplot(321)
+        ax1 = fig.add_subplot(321, xlim = (X_Arr.min(),X_Arr.max()), ylim = (Q_Arr.min(), Q_Arr.max()))
+        #ax1 = fig.add_subplot(321)
         ax1.grid(True, color='k')   
-        ax1.plot(X_Arr, Q_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
+        ax1.plot(X_Arr, Q_Arr, label ="Flow rate" , color = "c", linewidth = 2.0)
 
         #plt.title("SOLUTION: Water flow"+Title, fontsize = 16)
         plt.title("Solution "+Title, fontsize = 16)
         #plt.xlabel("Distance (m)",          fontsize=12)
         plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
 
-        #ax2 = fig.add_subplot(322, xlim = (0,2000), ylim = (0,1000))
-        ax2 = fig.add_subplot(322)
+        ax2 = fig.add_subplot(322, xlim = (X_Arr.min(),X_Arr.max()), ylim = (V_Arr.min(), V_Arr.max()))
+        #ax2 = fig.add_subplot(322)
         ax2.grid()
         ax2.plot(X_Arr, V_Arr, label ="Control Volume" , color = "c", linewidth = 2.0)
 
@@ -67,8 +67,8 @@ class Visualization:
         #plt.xlabel("Distance (m)",              fontsize=12)
         plt.ylabel("Contral Volume (m^3)",      fontsize=12)
 
-        #ax3 = fig.add_subplot(323, xlim = (0,2000), ylim = (0,10))
-        ax3 = fig.add_subplot(323)
+        ax3 = fig.add_subplot(323, xlim = (X_Arr.min(),X_Arr.max()), ylim = (Z_Arr.min(), Eta_Arr.max()))
+        #ax3 = fig.add_subplot(323)
         ax3.grid()
         ax3.plot(X_Arr, Eta_Arr, label ="Water Elevation" ,  color = "c", linewidth = 2.0)
         ax3.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
@@ -79,8 +79,8 @@ class Visualization:
         plt.ylabel("Elevation (m)", fontsize=12)
         #plt.legend(loc=0)
 
-        #ax4 = fig.add_subplot(324, xlim = (0,2000), ylim = (-1,3))
-        ax4 = fig.add_subplot(324)
+        ax4 = fig.add_subplot(324, xlim = (X_Arr.min(),X_Arr.max()), ylim = (U_Arr.min(), U_Arr.max()))
+        #ax4 = fig.add_subplot(324)
         ax4.grid()
         ax4.plot(X_Arr, U_Arr, label ="Velocity" , color = "c", linewidth = 2.0)
 
@@ -88,8 +88,8 @@ class Visualization:
         #plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Velocity (m/s)", fontsize=12)
 
-        #ax5 = fig.add_subplot(325, xlim = (0,2000), ylim = (0,150))
-        ax5 = fig.add_subplot(325)
+        ax5 = fig.add_subplot(325, xlim = (X_Arr.min(),X_Arr.max()), ylim = (E_Arr.min(), E_Arr.max()))
+        #ax5 = fig.add_subplot(325)
         ax5.grid()
         ax5.plot(X_Arr, E_Arr, label ="Energy" , color = "c", linewidth = 2.0)
 
@@ -97,8 +97,8 @@ class Visualization:
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Energy (m/s)",  fontsize=12)        
 
-        #ax6 = fig.add_subplot(326, xlim = (0,2000), ylim = (0,50))
-        ax6 = fig.add_subplot(326)
+        ax6 = fig.add_subplot(326, xlim = (X_Arr.min(),X_Arr.max()), ylim = (A_Arr.min(), A_Arr.max()))
+        #ax6 = fig.add_subplot(326)
         ax6.grid()
         ax6.plot(X_Arr, A_Arr, label ="Area" , color = "c", linewidth = 2.0)
 
@@ -121,23 +121,26 @@ class Visualization:
 
     # This function plots the results at the cell center and at the faces, simultaneously.
     @staticmethod
-    def Plot_Full(iii, N, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T1,T2):
+    def Plot_Full(iii, N, X, X_F, Z_F, V, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T1,T2):
         import numpy as np
         import matplotlib.pyplot as plt
         import matplotlib.ticker as tkr
         
         Q_Arr   = np.zeros(N*2+1, dtype = np.float64)
-        V_Arr   = np.zeros(N*2+1, dtype = np.float64)
+        V_Arr   = np.zeros(N,     dtype = np.float64)
         Eta_Arr = np.zeros(N*2+1, dtype = np.float64)
         U_Arr   = np.zeros(N*2+1, dtype = np.float64)
         E_Arr   = np.zeros(N*2+1, dtype = np.float64)
         X_Arr   = np.zeros(N*2+1, dtype = np.float64)
+        X_cell  = np.zeros(N,     dtype = np.float64)
         Z_Arr   = np.zeros(N*2+1, dtype = np.float64)
         A_Arr   = np.zeros(N*2+1, dtype = np.float64)
 
         Title      = T2
         X_Arr[:]   = X_F[:]
         Z_Arr[:]   = Z_F[:]
+        V_Arr[:]   = V[:]
+        X_cell[:]  = X[:]
 
         for ii in range(N):
             Q_Arr[ii*2]    = Q_F[ii]
@@ -163,35 +166,38 @@ class Visualization:
 
         fig = plt.figure(iii)
 
-        ax1 = fig.add_subplot(321)
+        ax1 = fig.add_subplot(321, xlim = (X_Arr.min(),X_Arr.max()), ylim = (Q_Arr.min(),Q_Arr.max()))
+        #ax1 = fig.add_subplot(321)
         ax1.grid()
-        ax1.plot(X_Arr, Q_Arr, label ="Water flow (Q)" , color = "c", linewidth = 2.0)
+        ax1.plot(X_Arr, Q_Arr, label ="Flow rate" , color = "c", linewidth = 2.0)
 
-        #plt.title("Water flow (Q)"+Title, fontsize = 16)
+        plt.title(Title, fontsize = 16)
         #plt.xlabel("Distance (m)",          fontsize=12)
         plt.ylabel("Flow rate (m^3/s)",     fontsize=12)
 
-        ax2 = fig.add_subplot(322)
+        ax2 = fig.add_subplot(322, xlim = (X_cell.min(),X_cell.max()), ylim = (V_Arr.min(),V_Arr.max()))
+        #ax2 = fig.add_subplot(322)
         ax2.grid()
-        ax2.plot(X_Arr, V_Arr, label ="Control Volume (V)" , color = "c", linewidth = 2.0)
+        ax2.plot(X_cell, V_Arr, label ="Control Volume (V)" , color = "c", linewidth = 2.0)
 
         #plt.title("Water Velocity (U)"+Title, fontsize = 16)
         #plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Control Volume (m^3)", fontsize=12)
 
-        ax3 = fig.add_subplot(323)
+        ax3 = fig.add_subplot(323, xlim = (X_Arr.min(),X_Arr.max()), ylim = (Z_Arr.min(), Eta_Arr.max()))
+        #ax3 = fig.add_subplot(323)
         ax3.grid()
-        ax3.plot(X_Arr, Eta_Arr, label ="Water Elevation (Eta)" ,  color = "c", linewidth = 2.0)
+        ax3.plot(X_Arr, Eta_Arr, label ="Water Elevation" ,  color = "c", linewidth = 2.0)
         ax3.plot(X_Arr, Z_Arr,   label ="Bottom Elevation" , color = "r", linewidth = 2.0)
 
-        plt.title(Title, fontsize = 16)
+        #plt.title(Title, fontsize = 16)
         #plt.title("Water Elevation (Eta)"+Title, fontsize = 16)
         #plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Elevation (m)", fontsize=12)
         #plt.legend(loc=0)
 
-        #ax4 = fig.add_subplot(324, xlim = (0,2000), ylim = (-1,3))
-        ax4 = fig.add_subplot(324)
+        ax4 = fig.add_subplot(324, xlim = (X_Arr.min(),X_Arr.max()), ylim = (U_Arr.min(), U_Arr.max()))
+        #ax4 = fig.add_subplot(324)
         ax4.grid()
         ax4.plot(X_Arr, U_Arr, label ="Velocity" , color = "c", linewidth = 2.0)
 
@@ -199,17 +205,19 @@ class Visualization:
         #plt.xlabel("Distance (m)", fontsize=12)
         plt.ylabel("Velocity (m/s)", fontsize=12)
 
-        ax5 = fig.add_subplot(325)
+        ax5 = fig.add_subplot(325, xlim = (X_Arr.min(),X_Arr.max()), ylim = (E_Arr.min(), E_Arr.max()))
+        #ax5 = fig.add_subplot(325)
         ax5.grid()
-        ax5.plot(X_Arr, E_Arr, label ="Energy (E)" , color = "c", linewidth = 2.0)
+        ax5.plot(X_Arr, E_Arr, label ="Energy" , color = "c", linewidth = 2.0)
 
         #plt.title("Energy (E)"+Title,   fontsize = 16)
         plt.xlabel("Distance (m)",  fontsize=12)
         plt.ylabel("Energy (m/s)",  fontsize=12)
 
-        ax6 = fig.add_subplot(326)
+        ax6 = fig.add_subplot(326, xlim = (X_Arr.min(),X_Arr.max()), ylim = (A_Arr.min(), A_Arr.max()))
+        #ax6 = fig.add_subplot(326)
         ax6.grid()
-        ax6.plot(X_Arr, A_Arr, label ="Area (A)" , color = "c", linewidth = 2.0)
+        ax6.plot(X_Arr, A_Arr, label ="Area" , color = "c", linewidth = 2.0)
 
         #plt.title("Area (A)"+Title,   fontsize = 16)
         plt.xlabel("Distance (m)",  fontsize=12)

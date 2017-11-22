@@ -28,6 +28,7 @@ class Initialization:
         self.Q  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.V  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.L  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
+        self.HL = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.Z  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
         self.Z_F= np.zeros(self.Disc.N_Cells*2+1, dtype=np.float64 )
         self.M  = np.zeros(self.Disc.N_Cells,     dtype=np.float64 )
@@ -44,6 +45,7 @@ class Initialization:
         self.Output_Dir = self.Disc.Output_Dir
 
         self.L[:]   = self.Disc.Length_Cell[:]
+        self.HL[:]  = self.Disc.HLength_Cell[:]
         self.Z[:]   = self.Disc.Z_Cell[:]
         self.Z_F[:] = self.Disc.Z_Full[:]
         self.M[:]   = self.Disc.Manning_Cell[:]
@@ -55,7 +57,8 @@ class Initialization:
 
         for ii in range( self.Disc.N_Cells ):
             #self.V[ii] = (self.Disc.V_in)* (1+  ( float(ii)/(self.Disc.N_Cells))* (self.Disc.V_ratio)    )
-            self.V[ii] = ( (self.Disc.V_in -self.Z[ii])* self.B[ii] )*self.L[ii]
+            #self.V[ii] = ( (self.Disc.V_in -self.Z[ii])* self.B[ii] )*self.L[ii] # <modify>
+            self.V[ii] = ( (self.Disc.V_in -self.Z[ii])* self.B[ii] )* self.HL[ii]# <modify>
 
         for ii in range( self.Disc.N_Cells ):
             self.Q[ii] = 0

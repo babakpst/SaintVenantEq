@@ -53,6 +53,7 @@ class Discretization:
         print("{} {:d}".format("   Total number of cells:   ", self.N_Cells))
 
         self.Length_Cell  = np.zeros(self.N_Cells, dtype=np.float) # Stores the length of each cell
+        self.HLength_Cell = np.zeros(self.N_Cells, dtype=np.float) # Stores the length of each cell
         self.Z_Cell       = np.zeros(self.N_Cells, dtype=np.float) # Stores bottom elevation of each cell
         self.S_Cell       = np.zeros(self.N_Cells, dtype=np.float) # Stores bottom elevation of each cell
         self.Z_Full       = np.zeros(self.N_Cells*2+1, dtype=np.float) # Stores bottom elevation of each cell
@@ -84,7 +85,8 @@ class Discretization:
                     X_distance  += Experiment.Reach_Length[jj]
 
                 for jj in range( Experiment.Reach_Disc[ii] - 1 ):
-                    self.Length_Cell[Cell_Counter]  = CntrlVolume_Length
+                    self.HLength_Cell[Cell_Counter]  = CntrlVolume_Length
+                    self.Length_Cell[Cell_Counter]   = CntrlVolume_Length * (1.0+Experiment.Reach_Slope[ii])
                     self.X_Disc[Cell_Counter]       = X_distance
                     self.X_Full[Cell_Counter*2]     = X_distance - 0.5 * CntrlVolume_Length
                     self.X_Full[Cell_Counter*2+1]   = X_distance
@@ -100,19 +102,20 @@ class Discretization:
                     Cell_Counter += 1
 
                 # The last cell: we need to separate the last cell in each reach to adjust the numerical error in the total length of the reach
-                self.Length_Cell[Cell_Counter]  = Experiment.Reach_Length[ii] - Total_Length
-                X_distance                      = X_distance - 0.5 * CntrlVolume_Length + 0.5 * self.Length_Cell[Cell_Counter]
+                self.HLength_Cell[Cell_Counter] = Experiment.Reach_Length[ii] - Total_Length
+                self.Length_Cell[Cell_Counter]  = (Experiment.Reach_Length[ii] - Total_Length) * (1.0+Experiment.Reach_Slope[ii])
+                X_distance                      = X_distance - 0.5 * CntrlVolume_Length + 0.5 * self.HLength_Cell[Cell_Counter]
                 self.X_Disc[Cell_Counter]       = X_distance  
-                self.X_Full[Cell_Counter*2]     = X_distance - 0.5 * self.Length_Cell[Cell_Counter]
+                self.X_Full[Cell_Counter*2]     = X_distance - 0.5 * self.HLength_Cell[Cell_Counter]
                 self.X_Full[Cell_Counter*2+1]   = X_distance  
-                self.X_Full[Cell_Counter*2+2]   = X_distance + 0.5 * self.Length_Cell[Cell_Counter] 
-                Height                         -= ( 0.5*Z_loss + 0.5 * self.Length_Cell[Cell_Counter] * Experiment.Reach_Slope[ii] )
+                self.X_Full[Cell_Counter*2+2]   = X_distance + 0.5 * self.HLength_Cell[Cell_Counter] 
+                Height                         -= ( 0.5*Z_loss + 0.5 * self.HLength_Cell[Cell_Counter] * Experiment.Reach_Slope[ii] )
 
                 self.S_Cell[Cell_Counter]       = Experiment.Reach_Slope[ii]
                 self.Z_Cell[Cell_Counter]       = Height 
-                self.Z_Full[Cell_Counter*2]     = Height + 0.5 * self.Length_Cell[Cell_Counter] * Experiment.Reach_Slope[ii]
+                self.Z_Full[Cell_Counter*2]     = Height + 0.5 * self.HLength_Cell[Cell_Counter] * Experiment.Reach_Slope[ii]
                 self.Z_Full[Cell_Counter*2+1]   = Height 
-                self.Z_Full[Cell_Counter*2+2]   = Height - 0.5 * self.Length_Cell[Cell_Counter] * Experiment.Reach_Slope[ii]
+                self.Z_Full[Cell_Counter*2+2]   = Height - 0.5 * self.HLength_Cell[Cell_Counter] * Experiment.Reach_Slope[ii]
                 self.Manning_Cell[Cell_Counter] = Experiment.Reach_Manning[ii]
                 self.Width_Cell[Cell_Counter]   = Experiment.Reach_Width[ii]
                 Cell_Counter += 1
@@ -128,18 +131,21 @@ class Discretization:
                     X_distance  += Experiment.Reach_Length[jj]
 
                 for jj in range( Experiment.Reach_Disc[ii] ):
-                    Z_loss = Func (X_distance)
+
+                    Z_loss = Func ( X_distance+ 0.5 * Projection_Length) - Func ( X_distance-0.5 * Projection_Length ) 
                     #print("DEBUG:: X-distance: ",X_distance,Z_loss) # <delete>
 
+                    self.HLength_Cell[Cell_Counter] = Projection_Length
                     self.Length_Cell[Cell_Counter] = (Projection_Length**2 + Z_loss**2)**0.5
+                    
                     self.X_Disc[Cell_Counter] = X_distance
                     self.X_Full[Cell_Counter*2] = X_distance - 0.5 * Projection_Length
                     self.X_Full[Cell_Counter*2+1] = X_distance
 
                     self.S_Cell[Cell_Counter]       = DFunc(X_distance)
-                    self.Z_Cell[Cell_Counter]       = Height + Z_loss
+                    self.Z_Cell[Cell_Counter]       = Height + Func(X_distance)
                     self.Z_Full[Cell_Counter*2]     = Height + Func(X_distance - 0.5 * Projection_Length)
-                    self.Z_Full[Cell_Counter*2+1]   = Height + Z_loss
+                    self.Z_Full[Cell_Counter*2+1]   = Height + Func(X_distance)
                     self.Manning_Cell[Cell_Counter] = Experiment.Reach_Manning[ii]
                     self.Width_Cell[Cell_Counter]   = Experiment.Reach_Width[ii]
                     X_distance += Projection_Length

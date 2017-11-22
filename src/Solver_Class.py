@@ -43,6 +43,7 @@ class Solver:
         Epsilon_E = 1.0e-3
 
         L    = np.zeros(N_Cells,     dtype=np.float64 )
+        HL   = np.zeros(N_Cells,     dtype=np.float64 )
         Z    = np.zeros(N_Cells,     dtype=np.float64 )
         Z_F  = np.zeros(N_Cells*2+1, dtype=np.float64 )
         M    = np.zeros(N_Cells,     dtype=np.float64 )
@@ -98,6 +99,7 @@ class Solver:
         Q[:]   = Ex.Q[:]
         V[:]   = Ex.V[:]
         L[:]   = Ex.L[:]
+        HL[:]  = Ex.HL[:]
         Z[:]   = Ex.Z[:]
         Z_F[:] = Ex.Z_F[:]
         M[:]   = Ex.M[:]
@@ -108,7 +110,7 @@ class Solver:
         #slowness = 0 # 
         Plot1 = 20  # Plots the results at the cell center, every "Plot1" steps.
         Plot2 = 100 # Plots the full results at the cell center, every "Plot2" steps.
-        h_upstream = V[0]/(B[0]*L[0])
+        h_upstream = V[0]/(B[0]*HL[0])
 
         #TITLE = "This is it." # <delete> after debugging
         #Draw.Plot_Domain(N_Cells, X, Z, TITLE)
@@ -127,7 +129,7 @@ class Solver:
         
             # Calculate the parameters at the cell center for time step n
             for ii in range(N_Cells): # see the paper:
-                A[ii]   = V[ii] / L[ii]
+                A[ii]   = V[ii] / HL[ii]
                 U[ii]   = Q[ii] / A[ii]
                 Eta[ii] = A[ii] / B[ii] + Z[ii]
                 E[ii]   = (U[ii]**2.0) /2.0 + Gravity*Eta[ii]
@@ -298,7 +300,7 @@ class Solver:
                 #TITLE2 = "Full results at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
                 TITLE1 = Ex.Output_Dir + "/" +  "Full__time_" + str(RealTime)+"_s"
                 TITLE2 = "Full results at time: " + str(RealTime) +"_s"
-                Draw.Plot_Full(2,N_Cells, X_F, Z_F, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE1, TITLE2)
+                Draw.Plot_Full(2, N_Cells, X, X_F, Z_F, V, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE1, TITLE2)
 
             #check = input(" Enter to continue ...") # <delete> after debug
 
@@ -324,7 +326,7 @@ class Solver:
             #check = input(" Enter to continue ...") # <delete>
             # Calculate the parameters at the cell center for time step n+1/2            
             for ii in range(N_Cells):  # These are the variables at {n+1}
-                A_1[ii]   = V_1[ii] / L[ii]
+                A_1[ii]   = V_1[ii] / HL[ii]
                 U_1[ii]   = Q_1[ii] / A_1[ii]
                 Eta_1[ii] = A_1[ii] / B[ii] + Z[ii]
                 E_1[ii]   = ((U_1[ii])**2.0) /2.0 +  Gravity*Eta_1[ii]
@@ -409,10 +411,9 @@ class Solver:
 
                         Q_F_1[ii] = self.sgn_func(Q_F_hat_S)*(Q_F_hat_S + Alfa_Epsilon)**0.5
                         Q_check = self.sgn_func(Q_F_hat_S)*A_F_1[ii]* (2*(E_F_1[ii]-Gravity*Eta_F_1[ii]))**(0.5)
-                        
                         if abs(Q_check- Q_F_1[ii]) >0.01:
-                            print("{40}{:5d}{:5d}{:30.20f}{:30.20f}".\
-                                format("Error: Q at the face is not consistent",nn,ii,Q_check, Q_F_1[ii]))
+                            #print("check ", ii, Q_check, Q_F_1[ii])
+                            print("{40}{:5d}{:5d}{:30.20f}{:30.20f}".format("Error: Q at the face is not consistent",nn,ii,Q_check, Q_F_1[ii]))
                             #check = input(" Error: inconsistency in cell values - Enter to continue ...")
                             #sys.exit()
 
@@ -493,7 +494,7 @@ class Solver:
                 #TITLE2 = "Full results at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
                 TITLE1 = Ex.Output_Dir + "/" +  "Full__time_half_" + str(RealTime)+"_s"
                 TITLE2 = "Full results at half time: " + str(RealTime) +"_s"
-                Draw.Plot_Full(3, N_Cells, X_F, Z_F, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, \
+                Draw.Plot_Full(3, N_Cells, X, X_F, Z_F, V_1, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, \
                                 E_1, E_F_1, A_1, A_F_1, TITLE1, TITLE2)
 
             #check = input(" Enter to continue ...")
@@ -529,7 +530,6 @@ class Solver:
 
             # delete this section after debugging -- above
 
-
             # Discussion on energy
             repeat = 0 
             Check_Energy = "False"
@@ -539,7 +539,7 @@ class Solver:
                 #check = input(" Enter to continue ...")
                 Check_Energy = "True"
                 for ii in range(N_Cells):
-                    A[ii]   = V[ii]/L[ii]
+                    A[ii]   = V[ii]/HL[ii]
                     U[ii]   = Q[ii]/A[ii]
                     Eta[ii] = A[ii]/B[ii] + Z[ii]
                     E[ii]   = (U[ii]**2.0) /2.0 + Gravity*Eta[ii]
@@ -574,12 +574,12 @@ class Solver:
                         Q[ii-1] += DT/L[ii] * Delta_Q * U_F_1[ii]
 
                         # Modifying Energy in each 
-                        A[ii-1] = V[ii-1]/L[ii-1]
+                        A[ii-1] = V[ii-1]/HL[ii-1]
                         U[ii-1] = Q[ii-1]/A[ii-1]
                         Eta[ii-1] = A[ii-1]/B[ii-1] + Z[ii-1]
                         E[ii-1] = (U[ii-1]**2.0) /2.0 +  Gravity*Eta[ii-1]
 
-                        A[ii]   = V[ii]/L[ii]
+                        A[ii]   = V[ii]/HL[ii]
                         U[ii]   = Q[ii]/A[ii]
                         Eta[ii] = A[ii]/B[ii] + Z[ii]
                         E[ii]   = (U[ii]**2.0) /2.0 +  Gravity*Eta[ii]
