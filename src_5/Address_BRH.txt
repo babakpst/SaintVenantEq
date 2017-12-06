@@ -1,0 +1,20 @@
+Input file name:
+ex4.txt
+
+Input directory: (These directions are for the Linux machine)
+/Users/brh/Box Sync/BRH_python/SVE/input
+
+Output directory:
+/Users/brh/Box Sync/BRH_python/SVE/output
+
+
+
+
+
+
+
+
+
+
+
+
