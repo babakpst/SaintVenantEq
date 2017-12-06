@@ -1,0 +1,29 @@
+Input file name:
+ex4.txt
+
+Input directory: (These directions are for the Linux machine)
+/data2/Babak/MyDocuments/Codes/GitHub/SVE_Energy/input
+
+Output directory:
+/data2/Babak/MyDocuments/Codes/GitHub/SVE_Energy/output
+
+
+
+
+
+Input directory: (These directions are for the windows machine)
+C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\input
+
+Output directory:
+C:\Box Sync\MyDocuments\Codes\GitHub\SVE_Energy\output
+
+
+
+
+
+
+
+
+
+
+
