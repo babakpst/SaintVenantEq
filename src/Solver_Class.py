@@ -5,7 +5,7 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    07/31/2017
-# Latest update: 11/20/2017
+# Latest update: 12/27/2017
 #
 # Comment: This class conducts the numerical solution of the Saint-Venant equation
 #
@@ -13,26 +13,125 @@
 
 class Solver:
 
-    def __init__(self):
+    # definitions:
+    # the ii=0 cell center is first cell inside the upstream boundary
+    # the ii=N_Cells-1 cell center is first cell inside the downstream boundary 
+    # the cells outside the downstream boundary (ii=N_Cells) do not exist
+    # faces take on the index of the downstream cell.
+    # the ii=0 face is the upstream boundary
+    # the ii=N_Cells face is the downstream boundary
+    # Because of pythong indexing
+    #   range(0,N_Cells) gives you all cells (which are interior)
+    #   range(1,N_Cells) gives you all interior faces
+    #   range(0,N_Cells+1) gives you all faces
+    #   Var_F[N_Cells] = furthest downstream face value
+    #   Var_E(N_Cells-1) = furthest downstream cell
+    
+    def __init__(self): 
         pass
+   
+    def solve(self,argv):
 
-    def sgn_func(self, x): return 1.0 if x >= 0 else -1.0
-
-    def solve(self):
         import numpy as np
         import sys
+        import os
 
         import Initialization_Class as Initial
         import Visualization_Class  as Visual
+        import Info_Class as Information
+        import RK4_Class as Solver_RK4
+        import RK2_Class as Solver_RK2
+        import Interpolation_Class
+        import RootFinder_Class
+        import Forward_Euler_Class as Solver_ForwardEuler
+        import Values_Class as Values
+        
+        global el, Face_Arrays, Face_hat, geo, fge
+        global Gravity
+        global N_Cells, nn
+        global DT, DT_max, DT_min, DT_variable
+        global CFLu_max, CFLb_max
+        global Fr_max
+        
+        global face_correct
+        global face_interp
+        
+        global np, sys
+        
+        global ifig
+        
+        global quit_after_plot
+        
+        global depth_min
+        global volume_min
+        global face_area_min
+        
+        global error_check
+                
+        quit_after_plot = False
+        
+        error_check = True
+        
+        ifig = 1
 
-        Gravity = 9.81
+        # Define classes
         Draw = Visual.Visualization()
+        Ex = Initial.Initialization(argv)
+        RK4 = Solver_RK4.RK4()
+        RK2 = Solver_RK2.RK2()
+        FEuler = Solver_ForwardEuler.ForwardEuler()
+        Values = Values.Values()
 
-        Ex = Initial.Initialization()
 
+        # Setting
+        # for automatically selecting time step use DT_variable = 1
+        DT_variable = 0 
+        #Gravity = Setting.Gravity
+        
+        DT_min = Ex.command_line_args['DT_min']; #print("DT_min",DT_min)
+        DT_max = Ex.command_line_args['DT_max']; #print("DT_max",DT_max)
+
+        Plot_at_Cell = Ex.command_line_args['Plot_at_Cell']; #print("Plot_at_Cell",Plot_at_Cell)
+        Plot_at_Face = Ex.command_line_args['Plot_at_Face']; #print("Plot_at_Face",Plot_at_Face)
+
+        CFLu_max = Ex.command_line_args['CFLu_max']; #print("CFLu_max",CFLu_max)
+        CFLb_max = Ex.command_line_args['CFLb_max']; #print("CFLb_max",CFLb_max)
+        
+        Fr_max = Ex.command_line_args['Fr_max']; #print("Fr_max",Fr_max)
+        
+        depth_min = Ex.command_line_args['depth_min']; #print("depth_min",depth_min)
+        
+        time_advance = Ex.command_line_args['time_advance']; #print("time_advance",time_advance)
+                
+        Gravity = Ex.command_line_args['Gravity']; #print("Gravity",Gravity)
+
+        face_correct = Ex.command_line_args['face_correct']; #print("face_correct",face_correct)
+        face_interp = Ex.command_line_args['face_interp']; #print("face_interp",face_interp)
+ 
+        plotstart = 0 # time step to start the plots
+        printout = 1 # iteration for printouts
+        
+
+
+        # Open an info file
+        Info_File_Dir = os.path.join(Ex.Output_Dir,("Info_"+Ex.Model) ) 
+        Info_File = open(Info_File_Dir,"w")
+
+        Info = Information.Info(Info_File,Ex.Model)
+        Info_File.close()
+
+        if face_correct == 1 and face_interp != 2:
+            print('Inconsistent setup. Face correction requires 2nd order interpolation')
+            sys.exit()
+                
         print(" ========== Solver Class ==========")
         print(" Solving SVE ...")
-        print(" Second-order Runge-Kutta method: ...")
+        if time_advance == "rk2": print(" Second-order Runge-Kutta method: ...")
+        elif time_advance == "rk4": print(" Fourth-order Runge-Kutta method: ...")
+        elif time_advance == "forward_euler": print(" First-order forward-Euler method: ...")
+        else:
+            print(" Wrong choice of the solver. See the setting file.")
+            sys.exist()
 
         print(" Allocating memory ...")
         N_Steps = int(Ex.Total_Time/Ex.Time_Step)
@@ -40,555 +139,199 @@ class Solver:
         h_dw    = Ex.h_dw
         DT      = Ex.Time_Step
 
-        Epsilon_E = 1.0e-3
-
-        L    = np.zeros(N_Cells,     dtype=np.float64 )
-        HL   = np.zeros(N_Cells,     dtype=np.float64 )
-        Z    = np.zeros(N_Cells,     dtype=np.float64 )
-        Z_F  = np.zeros(N_Cells*2+1, dtype=np.float64 )
-        M    = np.zeros(N_Cells,     dtype=np.float64 )
-        B    = np.zeros(N_Cells,     dtype=np.float64 )
-        Fr   = np.zeros(N_Cells,     dtype=np.float64 )
-        X    = np.zeros(N_Cells,     dtype=np.float64 )
-        X_F  = np.zeros(N_Cells*2+1, dtype=np.float64 )
+        # fixed geometry of elements for solution
+        L    = np.zeros(N_Cells,     dtype=np.float64 ) # element length
+        HL   = np.zeros(N_Cells,     dtype=np.float64 ) # Horzontal element length (projection length on the X-axis)
+        Z    = np.zeros(N_Cells,     dtype=np.float64 ) # element bottom elevation
+        M    = np.zeros(N_Cells,     dtype=np.float64 ) # element Manning's n
+        B    = np.zeros(N_Cells,     dtype=np.float64 ) # element bottom breadth (square channel)
+        X    = np.zeros(N_Cells,     dtype=np.float64 ) # element X distance
         
-        Q    = np.zeros(N_Cells, dtype=np.float64 )
-        V    = np.zeros(N_Cells, dtype=np.float64 )
-        A    = np.zeros(N_Cells, dtype=np.float64 )
-        U    = np.zeros(N_Cells, dtype=np.float64 )
-        Eta  = np.zeros(N_Cells, dtype=np.float64 )
-        E    = np.zeros(N_Cells, dtype=np.float64 )
-        l_P  = np.zeros(N_Cells, dtype=np.float64 )
-        R_h  = np.zeros(N_Cells, dtype=np.float64 )
-        C    = np.zeros(N_Cells, dtype=np.float64 )
-        Gamma= np.zeros(N_Cells, dtype=np.float64 ) #<modify> for variable area
+        geo = {'L':L, 'HL':HL,'Z':Z, 'M':M, 'B':B, 'X':X}
+               
+       # geometry for plotting (double density)
+        Z_Fp  = np.zeros(N_Cells*2+1, dtype=np.float64) # face bottom elevation
+        X_Fp  = np.zeros(N_Cells*2+1, dtype=np.float64) # element X distance on face
 
-        # <modify> double check.
+        # dynamic variables on elements      
+        A    = np.zeros(N_Cells, dtype=np.float64) # Cross-sectional area
+        C    = np.zeros(N_Cells, dtype=np.float64) # Temporary variable
+        E    = np.zeros(N_Cells, dtype=np.float64) # Energy
+        Eta  = np.zeros(N_Cells, dtype=np.float64) # Free surface elevation
+        Fup  = np.zeros(N_Cells, dtype=np.float64) # Friction on upstream 1/2 of cell
+        Fdn  = np.zeros(N_Cells, dtype=np.float64) # Friction on downstream 1/2 of cell  
+        Fr   = np.zeros(N_Cells, dtype=np.float64) # Froude number
+        Gamma= np.zeros(N_Cells, dtype=np.float64) # Gradient of Top Width with Z
+        l_P  = np.zeros(N_Cells, dtype=np.float64) # wetted perimeter
+        R_h  = np.zeros(N_Cells, dtype=np.float64) # hydraulic radius
+        Q    = np.zeros(N_Cells, dtype=np.float64) # flow rate
+        U    = np.zeros(N_Cells, dtype=np.float64) # velocity
+        V    = np.zeros(N_Cells, dtype=np.float64) # volume
 
-        Q_1   = np.zeros(N_Cells, dtype=np.float64 )
-        V_1   = np.zeros(N_Cells, dtype=np.float64 )
-        A_1   = np.zeros(N_Cells, dtype=np.float64 )
-        U_1   = np.zeros(N_Cells, dtype=np.float64 )
-        Eta_1 = np.zeros(N_Cells, dtype=np.float64 )
-        E_1   = np.zeros(N_Cells, dtype=np.float64 )
-        l_P_1 = np.zeros(N_Cells, dtype=np.float64 )
-        R_h_1 = np.zeros(N_Cells, dtype=np.float64 )
-        C_1   = np.zeros(N_Cells, dtype=np.float64 )
+        T    = np.zeros(N_Cells, dtype=np.float64) # Top Width
+        H    = np.zeros(N_Cells, dtype=np.float64) # hydraulic depth
+        CFLb = np.zeros(N_Cells, dtype=np.float64) # barotropic CFL
+        CFLu = np.zeros(N_Cells, dtype=np.float64) # advective CFL
 
-        Eta_F = np.zeros(N_Cells+1, dtype=np.float64 )
-        A_F   = np.zeros(N_Cells+1, dtype=np.float64 )
-        U_F   = np.zeros(N_Cells+1, dtype=np.float64 )
-        E_F   = np.zeros(N_Cells+1, dtype=np.float64 )
-        Q_F   = np.zeros(N_Cells+1, dtype=np.float64 )
-        F_q   = np.zeros(N_Cells*2, dtype=np.float64 )
+        # dynamic variables for RK solution (Cell variables at the mid-step)
+        A_1   = np.zeros(N_Cells, dtype=np.float64) # Cross-sectional area
+        C_1   = np.zeros(N_Cells, dtype=np.float64) # Temporary variable
+        E_1   = np.zeros(N_Cells, dtype=np.float64) # Energy
+        Eta_1 = np.zeros(N_Cells, dtype=np.float64) # Free-surface elevation
+        Fup_1 = np.zeros(N_Cells, dtype=np.float64) # Friction on upstream 1/2 of cell
+        Fdn_1 = np.zeros(N_Cells, dtype=np.float64) # Friction on downstream 1/2 of cell  
+        Fr_1  = np.zeros(N_Cells, dtype=np.float64) # Froude Number
+        Gamma_1 = np.zeros(N_Cells, dtype=np.float64) # Gradient of Top Width with Z
+        l_P_1 = np.zeros(N_Cells, dtype=np.float64) # wetted perimeter
+        R_h_1 = np.zeros(N_Cells, dtype=np.float64) # hydraulic radius
+        Q_1   = np.zeros(N_Cells, dtype=np.float64) # flow rate
+        U_1   = np.zeros(N_Cells, dtype=np.float64) # Velocity
+        V_1   = np.zeros(N_Cells, dtype=np.float64) # Volume
 
-        Eta_F_1 = np.zeros(N_Cells+1, dtype=np.float64 )
-        A_F_1   = np.zeros(N_Cells+1, dtype=np.float64 )
-        U_F_1   = np.zeros(N_Cells+1, dtype=np.float64 )
-        E_F_1   = np.zeros(N_Cells+1, dtype=np.float64 )
-        Q_F_1   = np.zeros(N_Cells+1, dtype=np.float64 )
-        F_q_1   = np.zeros(N_Cells*2, dtype=np.float64 )
+        #T_ed = np.zeros(N_Cells, dtype=np.float64 ) # <modify> when finalized
+        #T_eu = np.zeros(N_Cells, dtype=np.float64 ) # <modify> when finalized
 
+        # Define the "el" dictionary that contains all parameters related to each cell.
+        el =  {'A':A, 'C':C, 'CFLb':CFLb, 'CFLu':CFLu, 'E':E, 'Eta':Eta, 
+               'Fr':Fr, 'Fdn':Fdn, 'Fup':Fup, 'Gamma':Gamma, 
+               'H':H, 'l_P':l_P, 'R_h':R_h, 'Q':Q, 'T':T, 'U':U, 
+               'V':V} #, 'T_ed':T_ed, 'T_eu':T_eu } # Element Dictionary that contains all information for the cell center
+                             
+        # geometry on face
+        Z_F   = np.zeros(N_Cells+1, dtype=np.float64 ) # cross-sectional area
+        B_F   = np.zeros(N_Cells+1, dtype=np.float64 ) # breadth (rectangular channel)
+ 
+        fge = {'Z_F':Z_F, 'B_F':B_F} # Face Geometries (Dictionary)
+        
+        # dynamic variables on face
+        A_F   = np.zeros(N_Cells+1, dtype=np.float64 ) # cross-sectional area
+        E_F   = np.zeros(N_Cells+1, dtype=np.float64 ) # energy
+        Eta_F = np.zeros(N_Cells+1, dtype=np.float64 ) # free surface elevation
+        Q_F   = np.zeros(N_Cells+1, dtype=np.float64 ) # flow rate
+        U_F   = np.zeros(N_Cells+1, dtype=np.float64 ) # velocity
+        
+        # Define the "Face_Arrays" dictionary that contains all parameters related faces.
+        Face_Arrays = {'A_F':A_F, 'E_F':E_F, 'Eta_F':Eta_F, 'Q_F':Q_F, 'U_F':U_F}
+        
+        # dynamic variables on face for RK solution  <delete> after debugging, Substitute with the above arrays.
+        # (This is identical to the previous set of variables. We need this as a temporary set of variables for RK time marching.)
+        A_F_1   = np.zeros(N_Cells+1, dtype=np.float64 ) # cross-sectional area
+        E_F_1   = np.zeros(N_Cells+1, dtype=np.float64 ) # energy
+        Eta_F_1 = np.zeros(N_Cells+1, dtype=np.float64 ) # free surface elevation
+        Q_F_1   = np.zeros(N_Cells+1, dtype=np.float64 ) # flow rate
+        U_F_1   = np.zeros(N_Cells+1, dtype=np.float64 ) # velocity
+
+        # Define the "Face_Arrays" dictionary that contains all parameters related faces (Required by RK solution).
+        Face_Arrays_1 = {'A_F':A_F_1, 'E_F':E_F_1, 'Eta_F':Eta_F_1, 'Q_F':Q_F_1, 'U_F':U_F_1} # Face arrays for RK
+
+        # estimated variables on face
+        A_F_hat     = np.zeros(N_Cells+1, dtype=np.float64 ) # Estimated face area at the face
+        Eta_F_hat   = np.zeros(N_Cells+1, dtype=np.float64 ) # Estimated elevation at the face
+        Q_F_hat_S   = np.zeros(N_Cells+1, dtype=np.float64 ) # Estimated flow rate at the face
+        Gamma_F_hat = np.zeros(N_Cells+1, dtype=np.float64 ) # Estimated channel shape derivative at the face
+        H_hat       = np.zeros(N_Cells+1, dtype=np.float64 ) # Estimated depth at the face
+        
+        # We define the "Face_hat" dictionary, that contains all the estimated variables
+        Face_hat ={'Eta_F_hat':Eta_F_hat, 'A_F_hat':A_F_hat, 'Q_F_hat_S':Q_F_hat_S, 
+                    'Gamma_F_hat':Gamma_F_hat, 'H_hat':H_hat} 
+        
+        # RK solution space <delete> after debugging
         k_1V  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove
         k_1Q  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove
         k_2V  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove
         k_2Q  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove
+        k_3V  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove
+        k_3Q  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove
+        k_4V  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove
+        k_4Q  = np.zeros(N_Cells, dtype=np.float64 ) # <modify> remove        
+       
+        rke = {'k_1V':k_1V, 'k_1Q':k_1Q, 'k_2V':k_2V, 'k_2Q':k_2Q, 
+               'k_3V':k_3V, 'k_3Q':k_3Q, 'k_4V':k_4V, 'k_4Q':k_4Q,
 
+               'A':A_1, 'C':C_1, 'CFLb':CFLb, 'CFLu':CFLu, 'E':E_1, 'Eta':Eta_1, 
+               'Fr':Fr_1, 'Fdn':Fdn_1, 'Fup':Fup_1, 'Gamma':Gamma_1,
+               'H':H, 'l_P':l_P_1, 'R_h':R_h_1, 'Q':Q_1, 'T':T, 'U':U_1, 
+               'V':V_1}
+
+        volume_min = np.zeros(N_Cells, dtype=np.float64)
+        face_area_min = np.zeros(N_Cells+1, dtype=np.float64)
+        
+        #=======================================================================
         # Initialization 
-        print(" Initialization ... ")
-        Q[:]   = Ex.Q[:]
-        V[:]   = Ex.V[:]
-        L[:]   = Ex.L[:]
-        HL[:]  = Ex.HL[:]
-        Z[:]   = Ex.Z[:]
-        Z_F[:] = Ex.Z_F[:]
-        M[:]   = Ex.M[:]
-        B[:]   = Ex.B[:]
-        X[:]   = Ex.X[:]
-        X_F[:] = Ex.X_F[:]
+        print(" Initialization ... ") # For the cell center only
+        el['Q'][:]   = Ex.Q[:]
+        el['V'][:]   = Ex.V[:]
+        geo['L'][:]  = Ex.L[:]
+        geo['HL'][:] = Ex.HL[:]
+        geo['Z'][:]  = Ex.Z[:]
+        geo['M'][:]  = Ex.M[:]
+        geo['B'][:]  = Ex.B[:]
+        geo['X'][:]  = Ex.X[:]
+        X_Fp[:] = Ex.X_F[:]
+        Z_Fp[:] = Ex.Z_F[:]
+        
+        el['Q'][:] = Ex.Q[:]
+        
+        # for error checking rectangular channel   
+        volume_min[:] = depth_min * geo['L'][:] * geo['B'][:]  # double <check> 
 
-        #slowness = 0 # 
-        Plot1 = 20  # Plots the results at the cell center, every "Plot1" steps.
-        Plot2 = 100 # Plots the full results at the cell center, every "Plot2" steps.
-        h_upstream = V[0]/(B[0]*HL[0])
+        # rectangular channel: Setting the minimums for the face
+        face_area_min[1:N_Cells] = depth_min*0.5*(geo['B'][1:N_Cells] + geo['B'][0:N_Cells-1]) # <check>
+        face_area_min[0] = face_area_min[1] # <check>
+        face_area_min[N_Cells] = face_area_min[N_Cells-1] # <check>
 
-        #TITLE = "This is it." # <delete> after debugging
-        #Draw.Plot_Domain(N_Cells, X, Z, TITLE)
 
-        #check = input(" Enter to continue ...")
+        # Geometry setup: (Evaluate the Z_F and B_F)
+        fge = Values.face_upstream_bottom_elevation(fge, geo, N_Cells)
+        fge = Values.face_downstream_bottom_elevation(fge, geo, N_Cells)
+        fge = Values.face_interior_bottom_elevation(fge, geo, N_Cells)
+        fge = Values.face_breadth_rectangular_channel(fge, geo, N_Cells)
 
         print(" Time marching ... ")
-        for nn in range(N_Steps):
-            print(" Time step: %d out of %d " % (nn, N_Steps))
-
-            #if nn < slowness:
-            #    Q_Upstream = Ex.Q_Up * (nn/ float(slowness))
-            #else:
-            #    Q_Upstream = Ex.Q_Up        
-            Q_Upstream = Ex.Q_Up        
         
-            # Calculate the parameters at the cell center for time step n
-            for ii in range(N_Cells): # see the paper:
-                A[ii]   = V[ii] / HL[ii]
-                U[ii]   = Q[ii] / A[ii]
-                Eta[ii] = A[ii] / B[ii] + Z[ii]
-                E[ii]   = (U[ii]**2.0) /2.0 + Gravity*Eta[ii]
-                l_P[ii] = B[ii] + 2.0*(Eta[ii]-Z[ii])
-                R_h[ii] = A[ii]/l_P[ii]
-                C[ii]   = ((M[ii])**2.0) / (R_h[ii]**(4.0/3.0))
+        for nn in range(N_Steps):
+            #if (nn%printout) == 0:
+            print("========================== Time step: %d out of %d " % (nn, N_Steps))
+                
+            # store the inflow boundary for this step     
+            Q_Upstream = Ex.Q_Up     # Hack
 
-                Fr[ii]  = U[ii]/((Gravity * (Eta[ii] - Z[ii]) )**0.5)
-                if Fr[ii] >= 1.0:
-                    print("Flow is not subcritical %d %d %f" % (nn, ii, Fr[ii]))
-                    check = input(" Error: press ENTER to exit ")
-                    sys.exit()
+            # Cell center auxiliary values at time n
+            el = Values.element_values(el, geo, N_Cells, Gravity, DT, error_check, Fr_max, CFLb_max, CFLu_max )            
+                      
+            # face values at time n
+            Face_Arrays = Values.face_values(el, Face_Arrays, geo, fge, Q_Upstream, h_dw, depth_min, face_area_min, Gravity, N_Cells )  
 
-            # Plot the results at the cell center at every "Plot1" steps at the time step n
-            if (nn%Plot1) == 0:
+            # friction on center requires face values
+            el['Fdn'] = Values.get_friction_half_element(el['Fdn'], el, Face_Arrays, +1, N_Cells, Gravity)
+            el['Fup'] = Values.get_friction_half_element(el['Fup'], el, Face_Arrays, 0, N_Cells, Gravity )
+              
+            if ((nn%Plot_at_Face) == 0 and nn >= plotstart) \
+                or (quit_after_plot):
                 RealTime = round(nn*DT,5)
-                #TITLE1 = Ex.Output_Dir + "/" +  "Time_" + str(RealTime)+"_s__Repeat_" + str(repeat)
-                #TITLE2 = "at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
-                TITLE1 = Ex.Output_Dir + "/" +  "Time_" + str(RealTime)+"_s"
-                TITLE2 = "at time: " + str(RealTime) +"_s"
-                Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE1, TITLE2)
-
-            #check = input(" Enter to continue ...") # <delete>
-            # This loop evaluates all the required values at the faces at time step n
-            for ii in range(N_Cells+1): 
-                if ii==0: # Boundary condition at face 1/2
-                    Q_F[ii] = Q_Upstream
-                    Z_0 = Z[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
-                    Eta_F[ii] = Eta[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
-                    A_F[ii] =  (Eta_F[ii] - Z_0)* B[ii]
-                    U_F[ii] = Q_F[ii] / A_F[ii]
-                    E_F[ii] = ((U_F[ii])**2.0)/2.0 + Gravity * Eta_F[ii]
-
-                    # <modify> We assume that the boundary faces do not need any modifications and are fixed.
-
-                elif ii != 0 and ii != N_Cells: # middle cells (non-boundary cells)
-                    E_F[ii]   = (L[ii]*  E[ii-1] + L[ii-1]*  E[ii])/(L[ii] + L[ii-1])
-                    Eta_F_hat = (L[ii]*Eta[ii-1] + L[ii-1]*Eta[ii])/(L[ii] + L[ii-1])
-                    #print("{:} {:20.15f}".format(" Eta_Hat", Eta_F_hat))
-                    #A_F_hat   = (L[ii]*  A[ii-1] + L[ii-1]*  A[ii])/(L[ii] + L[ii-1]) # <modify>for variable area
-                    Z_F0 = Z[ii] + L[ii] * (( Z[ii-1] - Z[ii]) / (L[ii-1] + L[ii]))
-                    B_F_hat = B[ii] # <modify> Modify this equation for a variable area
-                    A_F_hat   = (Eta_F_hat - Z_F0) * B_F_hat
-                    Q_F_hat_S = (self.sgn_func(Q[ii-1])*L[ii]*((Q[ii-1])**2.0)  \
-                                +self.sgn_func(Q[ii])*L[ii-1]*((Q[ii])**2.0))/(L[ii]+L[ii-1])
-                    
-                    Gamma_F_hat = (L[ii]*Gamma[ii-1] + L[ii-1]*Gamma[ii])/(L[ii]+L[ii-1]) #<modify>for variable area
-                    H_hat = A_F_hat/B_F_hat
-                    a = 1.0 \
-                        + (2.0 * Gamma_F_hat * (H_hat**2.0) )/A_F_hat \
-                        - (Gravity*Eta_F_hat/E_F[ii])*(1.0 + 2.0*Gamma_F_hat*(H_hat**2.0)/A_F_hat) \
-                        - 2.0*Gravity*H_hat/E_F[ii]
-                    b = 2.0 - Gravity * ( 2.0 * Eta_F_hat + H_hat ) / E_F[ii]
-                    c = 1.0 - (Gravity * Eta_F_hat/E_F[ii] ) - Q_F_hat_S/( 2.0 * E_F[ii] * (A_F_hat**2.0) )
-
-                    if ((b+1.0)**2.0 - 4.0 * a * c ) >= 0.0:
-                        # print(" Positive/Zero argument a b c: %f %f %f" % (a,b,c)) # <delete> after debugging
-
-                        Eta_Epsilon1 = H_hat*(-b-1.0 + (((b+1.0)**2.0 - 4.0*a*c)**0.5))/(2.0*a) 
-                        Eta_Epsilon2 = H_hat*(-b-1.0 - (((b+1.0)**2.0 - 4.0*a*c)**0.5))/(2.0*a) 
-                    
-                        if abs(Eta_Epsilon1) < abs(Eta_Epsilon2): # Picks the closest to zero
-                            Eta_Epsilon    =  Eta_Epsilon1
-                        else:
-                            Eta_Epsilon    =  Eta_Epsilon2
-
-                        Eta_F[ii] = Eta_F_hat + Eta_Epsilon
-                        A_F[ii] = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
-
-                        x = Eta_Epsilon/H_hat
-                        Alfa_Epsilon  = 2.0 * E_F[ii] * (A_F_hat**2.0) * ( a * (x**2.0) + b * x + c )
-
-                        if Q_F_hat_S > 0.0:
-                            print(" Q is positive ", (nn, ii))
-                            if -Q_F_hat_S < Alfa_Epsilon:
-                                print(" Modification on Alpha")
-                                Alfa_Epsilon = -Q_F_hat_S
-
-                        elif Q_F_hat_S == 0.0:
-                            #print(" Q is zero ", (nn, ii)) # <delete> after debugging
-                            if Alfa_Epsilon < 0.0:
-                                print(" Modification on Alpha- originally negative")
-                                Alfa_Epsilon = 0.0
-                        elif Q_F_hat_S < 0.0:
-                            print(" Q is negative")
-                            #check = input(" Error: press ENTER to exit ")
-                            #sys.exit()
-
-                        Q_F[ii] = self.sgn_func(Q_F_hat_S)*(Q_F_hat_S + Alfa_Epsilon)**0.5
-                        Q_check = self.sgn_func(Q_F_hat_S)*A_F[ii]* (2*(E_F[ii]-Gravity*Eta_F[ii]))**(0.5)
-                        
-                        if abs(Q_check- Q_F[ii]) >0.01:
-                            print("{40}{:5d}{:5d}{:30.20f}{:30.20f}".\
-                                format("Error: Q at the face is not consistent",nn,ii,Q_check, Q_F[ii]))
-                            #check = input(" Error: inconsistency in cell values - Enter to continue ...")
-                            sys.exit()
-
-                    elif ( (b+1.0)**2.0 - 4.0 * a * c ) < 0.0:
-                        print(" Warning: negative argument- a b c: %f %f %f" % (a,b,c))
-                        if (Gravity*Eta_F_hat > 0.5*Q_F_hat_S/(A_F_hat**2.0)) and (b**2.0 - 4.0 *a*c >= 0.0):
-
-                            Eta_Epsilon1 = H_hat*(-b + ((b**2.0 - 4.0*a*c)**0.5))/(2.0*a) 
-                            Eta_Epsilon2 = H_hat*(-b - ((b**2.0 - 4.0*a*c)**0.5))/(2.0*a) 
-                        
-                            if abs(Eta_Epsilon1) < abs(Eta_Epsilon2):
-                                Eta_Epsilon    =  Eta_Epsilon1
-                            else:
-                                Eta_Epsilon    =  Eta_Epsilon2
-
-                            Eta_F[ii] = Eta_F_hat + Eta_Epsilon
-                            A_F[ii] = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
-
-                            #x = Eta_Epsilon/H_hat
-                            #Alfa_Epsilon  = 2.0 * E_F[ii] * (A_F_hat**2.0) * ( a * (x**2.0) + b * x + c )
-                            Alfa_Epsilon  = 0.0
-
-                            Q_F[ii] = self.sgn_func(Q_F_hat_S)*(Q_F_hat_S + Alfa_Epsilon)**0.5
-                            Q_check = self.sgn_func(Q_F_hat_S)*A_F[ii]* (2*(E_F[ii]-Gravity*Eta_F[ii]))**(0.5)
-                            
-                            if abs(Q_check- Q_F[ii]) >0.01:
-                                print("{40}{:5d}{:5d}{:30.20f}{:30.20f}".\
-                                    format("Error: Q at the face is not consistent",nn,ii,Q_check, Q_F[ii]))
-                                #check = input(" Error: inconsistency in cell values - Enter to continue ...")
-                                #check = input(" Error: press ENTER to exit ")
-                                #sys.exit()
-                        else:
-                            Eta_Epsilon = 0.0
-                            Eta_F[ii] = Eta_F_hat + Eta_Epsilon
-                            A_F[ii] = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
-                            Alfa_Epsilon  = 2.0 * (A_F[ii]**2.0) * (E_F[ii] - Gravity*Eta_F[ii]) - Q_F_hat_S
-                            if Alfa_Epsilon < - Q_F_hat_S:
-                                Alfa_Epsilon =- Q_F_hat_S
-                                Eta_Epsilon =  ( E_F[ii] - Gravity * Eta_F_hat ) / Gravity
-                                Eta_F[ii] = Eta_F_hat + Eta_Epsilon
-                                A_F[ii] = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
-                            
-                            Q_F[ii] = self.sgn_func(Q_F_hat_S)*(Q_F_hat_S + Alfa_Epsilon)**0.5
-                            Q_check = self.sgn_func(Q_F_hat_S)*A_F[ii]* (2*(E_F[ii]-Gravity*Eta_F[ii]))**(0.5)
-                            
-                            if abs(Q_check- Q_F[ii]) >0.01:
-                                print("{40}{:5d}{:5d}{:30.20f}{:30.20f}".\
-                                    format("Error: Q at the face is not consistent",nn,ii,Q_check, Q_F[ii]))
-                                check = input(" Error: press ENTER to exit ")
-                                sys.exit()
-
-                    #print("{:} {:20.15f}".format(" estimated face: ", Eta_F[ii]) )
-                    U_F[ii] = Q_F[ii]/A_F[ii]
-
-                elif ii == N_Cells: # Boundary condition at face N+1/2
-                    #Delta_Z   = L[ii-1] * ( ( Z[ii-2]-Z[ii-1] )/( L[ii-2]+L[ii-1] )  )
-                    #Z_N1      = Z[ii-1] - Delta_Z
-                    Z_N1      = 0.0   # <modify>
-                    Eta_F[ii] = h_dw + Z_N1
-                    A_F[ii]   = h_dw * B[ii-1]
-                    Q_F[ii]   = Q[ii-1]
-                    U_F[ii]   = Q_F[ii] / A_F[ii]
-                    E_F[ii]   = ((U_F[ii])**2.0)/2.0 + Gravity * Eta_F[ii]
-                    #if ( E_F[ii] < E_F[ii-1] ):
-                    #    print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F[ii], E_F[ii-1] ) )
-                    #    check = input(" Error: press ENTER to exit ")
-                    #    sys.exit()
-
-
-            # Plot the full results at every "Plot2" steps at the time step n
-            if (nn%Plot2) == 0:
-                RealTime = round(nn*DT,5)
-                #TITLE1 = Ex.Output_Dir + "/" +  "Full__time_" + str(RealTime)+"_s__Repeat_" + str(repeat)
-                #TITLE2 = "Full results at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
                 TITLE1 = Ex.Output_Dir + "/" +  "Full__time_" + str(RealTime)+"_s"
                 TITLE2 = "Full results at time: " + str(RealTime) +"_s"
-                Draw.Plot_Full(2, N_Cells, X, X_F, Z_F, V, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, TITLE1, TITLE2)
-
-            #check = input(" Enter to continue ...") # <delete> after debug
-
-            for ii in range(N_Cells):
-                F_q[ii*2  ] = Gravity * C[ii] * V[ii] * ( ( U_F[ii] + U[ii]     )**2.0) / 8.0
-                F_q[ii*2+1] = Gravity * C[ii] * V[ii] * ( ( U[ii]   + U_F[ii+1] )**2.0) / 8.0
-
-            # find k1 in the Runge-Kutta method and find the solution at n+1/2
-            for ii in range(N_Cells): 
-                k_1V[ii] =  DT * ( Q_F[ii] - Q_F[ii+1] )  # <modify> remove
-                k_1Q[ii] = (DT/L[ii])*(Q_F[ii]*U_F[ii] - Q_F[ii+1]*U_F[ii+1] \
-                           + Gravity*A_F[ii]*Eta_F[ii] - Gravity*A_F[ii+1]*Eta_F[ii+1] - F_q[2*ii] - F_q[2*ii+1]) 
-                # Solution at "n+1/2"
-                V_1[ii]   = V[ii] + 0.5* k_1V[ii]
-                Q_1[ii]   = Q[ii] + 0.5* k_1Q[ii]  # <modify> not necessary
-
-            #if nn < slowness:
-            #    Q_Upstream = Ex.Q_Up * ((nn+0.5)/ float(slowness))
-            #else:
-            #    Q_Upstream = Ex.Q_Up
-            #Q_Upstream = Ex.Q_Up        
-
-            #check = input(" Enter to continue ...") # <delete>
-            # Calculate the parameters at the cell center for time step n+1/2            
-            for ii in range(N_Cells):  # These are the variables at {n+1}
-                A_1[ii]   = V_1[ii] / HL[ii]
-                U_1[ii]   = Q_1[ii] / A_1[ii]
-                Eta_1[ii] = A_1[ii] / B[ii] + Z[ii]
-                E_1[ii]   = ((U_1[ii])**2.0) /2.0 +  Gravity*Eta_1[ii]
-                l_P_1[ii] = B[ii] + 2.0 * (Eta_1[ii] - Z[ii])  # <modify>
-                R_h_1[ii] = A_1[ii] / l_P_1[ii] # <modify>
-                C_1[ii]   = ((M[ii])**2.0) / ((R_h_1[ii])**(4.0/3.0)) # <modify>
-
-                Fr[ii]  = U_1[ii]/((Gravity * (Eta_1[ii] - Z[ii]) )**(0.5))
-                if Fr[ii] >= 1.0:
-                    print("Flow is not subcritical")
-                    check = input(" Error: press ENTER to exit ")
+                Draw.Plot_Full_Results(ifig, N_Cells, geo['X'], X_Fp, Z_Fp, el['V'], el['Q'], Face_Arrays['Q_F'],  \
+                               el['Eta'], Face_Arrays['Eta_F'], el['U'], Face_Arrays['U_F'],    \
+                               el['E'], Face_Arrays['E_F'], el['A'], Face_Arrays['A_F'],        \
+                               TITLE1, TITLE2)
+                if quit_after_plot:
+                    print('exit after plot due to error')
                     sys.exit()
-
-            # Plot the results at the cell center at every "Plot2" steps at the time step n+1/2
-            if (nn%Plot2) == 0:
-                RealTime = round(nn*DT,5)
-                #TITLE1 = Ex.Output_Dir + "/" +  "Time_half_" + str(RealTime)+"_s__Repeat_" + str(repeat)
-                #TITLE2 = "at time_half: " + str(RealTime) +"_s__Repeat_" + str(repeat)
-                TITLE1 = Ex.Output_Dir + "/" +  "Time_half_" + str(RealTime)+"_s"
-                TITLE2 = "at time_half: " + str(RealTime) +"_s"
-                Draw.Plot_at_Cell(N_Cells, X, Z, Q_1, V_1, Eta_1, U_1, E_1, A_1, TITLE1, TITLE2)
-
-            #check = input(" Enter to continue ...") # <delete>
-            # This loop evaluates all the required values at the faces at time step n+1/2
-            for ii in range(N_Cells+1):
-                if ii==0: # Boundary condition at face 1/2
-                    Q_F_1[ii]   = Q_Upstream
-                    Z_0 = Z[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
-                    Eta_F_1[ii] = Eta_1[ii] + L[ii] * (( Z[ii] - Z[ii+1]) / (L[ii] + L[ii+1]))
-                    A_F_1[ii]   = (Eta_F_1[ii] - Z_0)* B[ii]
-                    U_F_1[ii]   = Q_F_1[ii] / A_F_1[ii]
-                    E_F_1[ii]   = ((U_F_1[ii])**2.0)/(2.0) + Gravity * Eta_F_1[ii]
-
-                elif ii != 0 and ii != N_Cells: # middle cells
-                    E_F_1[ii] = (L[ii]*  E_1[ii-1] + L[ii-1]*  E_1[ii] )/( L[ii] + L[ii-1] )
-                    Eta_F_hat = (L[ii]*Eta_1[ii-1] + L[ii-1]*Eta_1[ii] )/( L[ii] + L[ii-1] )
-                    #A_F_hat   = (L[ii]*A_1[ii-1] + L[ii-1]*A_1[ii])/(L[ii] + L[ii-1]) # <modify> for a variable area
-                    Z_F0 = Z[ii] + L[ii] * (( Z[ii-1] - Z[ii]) / (L[ii-1] + L[ii]))
-                    B_F_hat = B[ii] # <modify> Modify this equation for a variable area
-                    A_F_hat   = (Eta_F_hat - Z_F0) * B_F_hat
-                    Q_F_hat_S = (self.sgn_func(Q[ii-1])*L[ii]*((Q_1[ii-1])**2.0)  \
-                                +self.sgn_func(Q[ii])*L[ii-1]*(Q_1[ii]**2.0))/(L[ii]+L[ii-1])
-                    Gamma_F_hat = (L[ii]*Gamma[ii-1] + L[ii-1]*Gamma[ii])/(L[ii] + L[ii-1]) #<modify>for a variable area
-                    H_hat    = A_F_hat / B_F_hat
-                    a        = 1.0 + (2.0*Gamma_F_hat*(H_hat**2.0))/(A_F_hat) \
-                               - ((Gravity*Eta_F_hat)/E_F_1[ii])*(1.0 + (2.0*Gamma_F_hat*(H_hat**2.0))/A_F_hat) \
-                               - 2.0*Gravity*H_hat/E_F_1[ii]
-                    b        = 2.0 - Gravity*(2.0*Eta_F_hat + H_hat)/E_F_1[ii]
-                    c        = 1.0 - (Gravity*Eta_F_hat/E_F_1[ii]) - Q_F_hat_S/(2.0*E_F_1[ii]*(A_F_hat**2.0))
-
-                    if ((b+1.0)**2.0 - 4.0 * a * c ) >= 0.0:
-                        print(" Positive/Zero argument %f %f %f" % (a,b,c))
-
-                        Eta_Epsilon1 = H_hat*(-b-1.0 + (((b+1.0)**2.0 - 4.0*a*c)**0.5))/(2.0*a) 
-                        Eta_Epsilon2 = H_hat*(-b-1.0 - (((b+1.0)**2.0 - 4.0*a*c)**0.5))/(2.0*a) 
                     
-                        if abs(Eta_Epsilon1) < abs(Eta_Epsilon2):
-                            Eta_Epsilon    =  Eta_Epsilon1
-                        else:
-                            Eta_Epsilon    =  Eta_Epsilon2
+                ifig=ifig+1
+                                
+            if time_advance == 'rk2':    
+                el = RK2.RK2(rke, Face_Arrays_1, el, Face_Arrays, Face_hat, geo, fge, Q_Upstream, h_dw, N_Cells, Gravity, DT)  
+            elif time_advance == 'rk4':    
+                el = RK4.RK4(el, Face_Arrays, geo, fge, rke, Face_Arrays_1, Q_Upstream, h_dw, N_Cells, Gravity, DT, error_check, Fr_max, CFLb_max, CFLu_max, depth_min, face_area_min )
+            elif time_advance == 'forward_euler':
+                el = FEuler.forward_euler( el, Face_Arrays, geo )
+            else:
+                print('error, unknown time advance of ',time_advance)
+                sys.exit()
+         
 
-                        Eta_F_1[ii] = Eta_F_hat + Eta_Epsilon
-                        A_F_1[ii] = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
-
-                        x = Eta_Epsilon/H_hat
-                        Alfa_Epsilon  = 2.0 * E_F_1[ii] * (A_F_hat**2.0) * ( a * (x**2.0) + b * x + c )
-
-                        if Q_F_hat_S > 0.0:
-                            print(" Q^2 is positive")
-                            if -Q_F_hat_S < Alfa_Epsilon:
-                                print(" Modification on Alpha")
-                                Alfa_Epsilon = -Q_F_hat_S
-                        elif Q_F_hat_S == 0.0:
-                            #print(" Q is zero ", (nn, ii)) # <delete> after debugging
-                            if Alfa_Epsilon < 0.0:
-                                print(" Modification on Alpha- originally negative")
-                                Alfa_Epsilon = 0.0
-                        elif Q_F_hat_S < 0.0:
-                            print(" Q^2 is negative")
-                            #check = input(" Error: press ENTER to exit ")
-                            #sys.exit()
-
-                        Q_F_1[ii] = self.sgn_func(Q_F_hat_S)*(Q_F_hat_S + Alfa_Epsilon)**0.5
-                        Q_check = self.sgn_func(Q_F_hat_S)*A_F_1[ii]* (2*(E_F_1[ii]-Gravity*Eta_F_1[ii]))**(0.5)
-                        if abs(Q_check- Q_F_1[ii]) >0.01:
-                            #print("check ", ii, Q_check, Q_F_1[ii])
-                            print("{40}{:5d}{:5d}{:30.20f}{:30.20f}".format("Error: Q at the face is not consistent",nn,ii,Q_check, Q_F_1[ii]))
-                            #check = input(" Error: inconsistency in cell values - Enter to continue ...")
-                            #sys.exit()
-
-                    elif ((b+1.0)**2.0 - 4.0 * a * c ) < 0.0:
-                        print(" Warning: negative argument %f %f %f" % (a,b,c))
-                        if (Gravity*Eta_F_hat > 0.5*Q_F_hat_S/(A_F_hat**2.0)) and (b**2.0 - 4.0 *a*c >= 0.0):
-
-                            Eta_Epsilon1 = H_hat*(-b + ((b**2.0 - 4.0*a*c)**0.5))/(2.0*a) 
-                            Eta_Epsilon2 = H_hat*(-b - ((b**2.0 - 4.0*a*c)**0.5))/(2.0*a) 
-                        
-                            if abs(Eta_Epsilon1) < abs(Eta_Epsilon2):
-                                Eta_Epsilon    =  Eta_Epsilon1
-                            else:
-                                Eta_Epsilon    =  Eta_Epsilon2
-
-                            Eta_F_1[ii] = Eta_F_hat + Eta_Epsilon
-                            A_F_1[ii] = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
-
-                            #x = Eta_Epsilon/H_hat
-                            #Alfa_Epsilon  = 2.0 * E_F[ii] * (A_F_hat**2.0) * ( a * (x**2.0) + b * x + c )
-                            Alfa_Epsilon  = 0.0
-
-                            Q_F_1[ii] = self.sgn_func(Q_F_hat_S)*(Q_F_hat_S + Alfa_Epsilon)**0.5
-                            Q_check = self.sgn_func(Q_F_hat_S)*A_F_1[ii]* (2*(E_F_1[ii]-Gravity*Eta_F_1[ii]))**0.5
-                            
-                            if abs(Q_check- Q_F_1[ii]) >0.01:
-                                print("{40}{:5d}{:5d}{:30.20f}{:30.20f}".\
-                                    format("Error: Q at the face is not consistent",nn,ii,Q_check, Q_F_1[ii]))
-                                #check = input(" Error: inconsistency in cell values - Enter to continue ...")
-                                #check = input(" Error: press ENTER to exit ")
-                                #sys.exit()
-                        else:
-                            Eta_Epsilon = 0.0
-                            Eta_F_1[ii] = Eta_F_hat + Eta_Epsilon
-                            A_F_1[ii] = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
-                            Alfa_Epsilon  = 2.0 * (A_F_1[ii]**2.0) * ( E_F_1[ii] - Gravity * Eta_F_1[ii] ) - Q_F_hat_S
-                            if Alfa_Epsilon < - Q_F_hat_S:
-                                Alfa_Epsilon =- Q_F_hat_S
-                                Eta_Epsilon =  ( E_F_1[ii] - Gravity * Eta_F_hat ) / Gravity
-                                Eta_F_1[ii] = Eta_F_hat + Eta_Epsilon
-                                A_F_1[ii] = A_F_hat + (B_F_hat + Gamma_F_hat*Eta_Epsilon) * Eta_Epsilon
-                            
-                            Q_F_1[ii] = self.sgn_func(Q_F_hat_S)*(Q_F_hat_S + Alfa_Epsilon)**0.5
-                            Q_check = self.sgn_func(Q_F_hat_S)*A_F_1[ii]* (2*(E_F_1[ii]-Gravity*Eta_F_1[ii]))**0.5
-                            
-                            if abs(Q_check- Q_F_1[ii]) >0.01:
-                                print("{40}{:5d}{:5d}{:30.20f}{:30.20f}".\
-                                    format("Error: Q at the face is not consistent",nn,ii,Q_check, Q_F_1[ii]))
-                                #check = input(" Error: press ENTER to exit ")
-                                #sys.exit()
-
-                    U_F_1[ii]   = Q_F_1[ii] / A_F_1[ii]
-
-                elif ii == N_Cells: # Boundary condition at face N+1/2
-                    Delta_Z   = L[ii-1] * ( ( Z[ii-2]-Z[ii-1] )/( L[ii-2]+L[ii-1] )  )  # <remove> after debugging
-                    Z_N1      = Z[ii-1] - Delta_Z  # <remove> after debugging
-                    Z_N1      = 0.0 # <modify>
-                    Eta_F_1[ii] = h_dw + Z_N1
-                    A_F_1[ii]   = h_dw * B[ii-1]
-                    #if Eta_1[ii-1]<Eta_F_1[ii]:
-                    #    print("Fatal error Downstream BC: %d, %d, %f, %f"%(ii,nn,Eta_1[ii-1],Eta_F[ii]))    
-                    #    check = input(" Error: press ENTER to exit ")
-                    #    sys.exit()
-                    #Q_F_1[ii]= (1.0/M[ii-1])*A_F_1[ii]*((R_h_1[ii-1])**(2.0/3.0)) \
-                    #           *(((Eta_1[ii-1]-Eta_F_1[ii])/(0.5*L[ii-1]))**(1.0/2.0))  # <modify>
-                    Q_F_1[ii]   = Q_1[ii-1]
-                    U_F_1[ii]   = Q_F_1[ii] / A_F_1[ii]
-                    E_F_1[ii]   = (U_F_1[ii]**2.0)/2.0 + Gravity*Eta_F_1[ii]
-                    #if ( E_F_1[ii] < E_F_1[ii-1] ):
-                    #    print(" Fatal Error in Energy: %d, %d, %40.30f, %40.30f" % (nn, ii, E_F_1[ii], E_F_1[ii-1] ) )
-                    #    check = input(" Error: press ENTER to exit ")
-                    #    sys.exit()
-
-            # Plot the full results at every "Plot2" steps at the time step n+1/2
-            if (nn%Plot2) == 0:
-                RealTime = round(nn*DT,5)
-                #TITLE1 = Ex.Output_Dir + "/" +  "Full__time_" + str(RealTime)+"_s__Repeat_" + str(repeat)
-                #TITLE2 = "Full results at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
-                TITLE1 = Ex.Output_Dir + "/" +  "Full__time_half_" + str(RealTime)+"_s"
-                TITLE2 = "Full results at half time: " + str(RealTime) +"_s"
-                Draw.Plot_Full(3, N_Cells, X, X_F, Z_F, V_1, Q_1, Q_F_1, Eta_1, Eta_F_1, U_1, U_F_1, \
-                                E_1, E_F_1, A_1, A_F_1, TITLE1, TITLE2)
-
-            #check = input(" Enter to continue ...")
-
-            for ii in range(N_Cells):
-                F_q_1[ii*2  ] = Gravity * C_1[ii] * V_1[ii] * ( ( U_F_1[ii] + U_1[ii]     )**2.0) / 8.0
-                F_q_1[ii*2+1] = Gravity * C_1[ii] * V_1[ii] * ( ( U_1[ii]   + U_F_1[ii+1] )**2.0) / 8.0
-
-            # find k2 in the Runge-Kutta method and find the solution at n+1
-            for ii in range(N_Cells):
-                k_2V[ii]  = DT * ( Q_F_1[ii] - Q_F_1[ii+1] )  
-                k_2Q[ii]  = (DT/L[ii])*(Q_F_1[ii]*U_F_1[ii] - Q_F_1[ii+1]*U_F_1[ii+1] \
-                                        + Gravity*A_F_1[ii]*Eta_F_1[ii] - Gravity*A_F_1[ii+1]*Eta_F_1[ii+1] \
-                                        - F_q_1[2*ii] - F_q_1[2*ii+1]) # <modify>remove
-            V[ii] += k_2V[ii]
-            Q[ii] += k_2Q[ii]
-
-            # delete this section after debugging -- below
-            #for ii in range(N_Cells):
-            #    A[ii]   = V[ii] / L[ii]
-            #    U[ii]   = Q[ii] / A[ii]
-            #    Eta[ii] = A[ii] / B[ii] + Z[ii]
-            #    E[ii]   = (U[ii]**2.0) /2.0 +  Gravity*Eta[ii]
-            #
-            #RealTime = round(nn*DT,5)
-            ##TITLE1 = Ex.Output_Dir + "/" +  "Time_" + str(RealTime)+"_s__Repeat_" + str(repeat)
-            ##TITLE2 = "at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
-            #TITLE1 = Ex.Output_Dir + "/" +  "Before_Correction_Time_" + str(RealTime)+"_s"
-            #TITLE2 = "Before_Correction_at time: " + str(RealTime) +"_s"
-            #Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE1, TITLE2)
-
-            #check = input(" Press enter to continute... ")
-
-            # delete this section after debugging -- above
-
-            # Discussion on energy
-            repeat = 0 
-            Check_Energy = "False"
-            while Check_Energy == "False":
-                repeat += 1
-                print("{:40} {:d} {:d}".format(" Repeat at this step: ",repeat,ii)) 
-                #check = input(" Enter to continue ...")
-                Check_Energy = "True"
-                for ii in range(N_Cells):
-                    A[ii]   = V[ii]/HL[ii]
-                    U[ii]   = Q[ii]/A[ii]
-                    Eta[ii] = A[ii]/B[ii] + Z[ii]
-                    E[ii]   = (U[ii]**2.0) /2.0 + Gravity*Eta[ii]
-
-                RealTime = round(nn*DT,5) # <delete> after debugging
-                #TITLE1 = Ex.Output_Dir + "/" +  "Time_" + str(RealTime)+"_s__Repeat_" + str(repeat)
-                #TITLE2 = "at time: " + str(RealTime) +"_s__Repeat_" + str(repeat)
-                TITLE1 = Ex.Output_Dir + "/" +  "Before_Correction_Time_" + str(RealTime)+"_s" + str(repeat) 
-                TITLE2 = "Before_Correction_at time: " + str(RealTime) +"_s" + str(repeat) 
-                Draw.Plot_at_Cell(N_Cells, X, Z, Q, V, Eta, U, E, A, TITLE1, TITLE2)
-
-                #check = input(" Press enter to continute - before correction ... ")
-
-                for ii in range(1,N_Cells):
-                    if E[ii] - E[ii-1]>0.000:
-                        print("{:22} {:d} {:d} {:d} {:15.12f} {:15.12f} {:e}"\
-                               .format(" Energy modification: ", nn, ii-1, ii, E[ii-1], E[ii], E[ii-1]-E[ii]))
-                        Check_Energy = "False"
-                        Delta_Energy = E[ii-1] - E[ii] 
-                        Delta_Q = (Epsilon_E - Delta_Energy) / (DT*(-(U[ii-1]-U_F_1[ii])*(U[ii-1]/V[ii-1]) \
-                            - (U[ii]-U_F_1[ii])*(U[ii]/V[ii]) + (Gravity/(B[ii-1]*L[ii-1])) + (Gravity/(B[ii]*L[ii]))))
-
-                        print("{:26} {:d} {:d} {:15.12f} {:15.12f} {:15.12f}" \
-                              .format(" Modifying the solution: ", nn, ii, Delta_Q, Q[ii-1], Q[ii]))
-
-                        #check = input(" OKAY ")
-
-                        V[ii] -= DT*Delta_Q 
-                        V[ii-1] += DT*Delta_Q 
-
-                        Q[ii] -=  DT/L[ii] * Delta_Q * U_F_1[ii]
-                        Q[ii-1] += DT/L[ii] * Delta_Q * U_F_1[ii]
-
-                        # Modifying Energy in each 
-                        A[ii-1] = V[ii-1]/HL[ii-1]
-                        U[ii-1] = Q[ii-1]/A[ii-1]
-                        Eta[ii-1] = A[ii-1]/B[ii-1] + Z[ii-1]
-                        E[ii-1] = (U[ii-1]**2.0) /2.0 +  Gravity*Eta[ii-1]
-
-                        A[ii]   = V[ii]/HL[ii]
-                        U[ii]   = Q[ii]/A[ii]
-                        Eta[ii] = A[ii]/B[ii] + Z[ii]
-                        E[ii]   = (U[ii]**2.0) /2.0 +  Gravity*Eta[ii]
-                        #check = input(" Enter to continue ...")
-                        break
-
+        del Info_File
         print(" ========== Solver Class ==========")
         print()
-
-
-
-
