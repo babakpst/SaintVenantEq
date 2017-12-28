@@ -37,7 +37,7 @@ def main(argv):
     print()
 
     Results = Solver_Class.Solver()
-    Results.solve()
+    Results.solve(argv)
 
     print("{:^80}".format("---------- Simulation was conducted successfully ----------"))
     print()

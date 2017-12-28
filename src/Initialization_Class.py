@@ -14,11 +14,12 @@
 
 class Initialization:
 
-    def __init__(self):
+    def __init__(self,argv):
         import numpy as np
         import Discretization_Class
 
-        self.Disc = Discretization_Class.Discretization()
+        self.Disc = Discretization_Class.Discretization(argv)
+        self.command_line_args=self.Disc.command_line_args
 
         self.Disc.Discretize()
 
@@ -43,6 +44,7 @@ class Initialization:
         self.Q_Up = self.Disc.Q_Up
         self.N_Cells    = self.Disc.N_Cells
         self.Output_Dir = self.Disc.Output_Dir
+        self.Model       = self.Disc.Model
 
         self.L[:]   = self.Disc.Length_Cell[:]
         self.HL[:]  = self.Disc.HLength_Cell[:]
@@ -55,14 +57,15 @@ class Initialization:
         #self.S[:]   = self.Disc.S_Disc[:]
 
 
-        for ii in range( self.Disc.N_Cells ):
-            #self.V[ii] = (self.Disc.V_in)* (1+  ( float(ii)/(self.Disc.N_Cells))* (self.Disc.V_ratio)    )
-            #self.V[ii] = ( (self.Disc.V_in -self.Z[ii])* self.B[ii] )*self.L[ii] # <modify>
-            self.V[ii] = ( (self.Disc.V_in -self.Z[ii])* self.B[ii] )* self.HL[ii]# <modify>
+        #self.V[ii] = (self.Disc.V_in)* (1+  ( float(ii)/(self.Disc.N_Cells))* (self.Disc.V_ratio)    )
+        #self.V[ii] = ( (self.Disc.V_in -self.Z[ii])* self.B[ii] )*self.L[ii] # <modify>
+        self.V[:] = ( (self.Disc.V_in -self.Z[:])* self.B[:] )* self.HL[:]# <modify>
 
-        for ii in range( self.Disc.N_Cells ):
-            self.Q[ii] = 0
-            #self.Q[ii] = self.Disc.Q_Up * (self.Disc.N_Cells - ii)/self.Disc.N_Cells
+
+        # BRH TEST: Initializing Q everywhere with upstream BC
+        #self.Q[:] = 0.0
+        self.Q[:] = self.Q_Up
+        #self.Q[ii] = self.Disc.Q_Up * (self.Disc.N_Cells - ii)/self.Disc.N_Cells
         #self.Q[0] = self.Disc.Q_Up
 
         del self.Disc

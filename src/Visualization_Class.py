@@ -5,9 +5,10 @@
 # Supervised by:     Dr. Ben R. Hodges
 # 
 # Start date:    08/03/2017
-# Latest update: 11/20/2017
+# Latest update: 12/27/2017
 #
 # Comment: This class visualizes the results using matplotlib module.
+# WARNING: Different compilers may behave differently here.          
 #
 #####################################################################
 
@@ -22,8 +23,6 @@ class Visualization:
         import numpy as np
         import matplotlib.pyplot as plt
 
-        print("DEBUG: This is the visualization class") # <Delete>
-        
         Q_Arr   = np.zeros(N, dtype = np.float64)
         V_Arr   = np.zeros(N, dtype = np.float64)
         Eta_Arr = np.zeros(N, dtype = np.float64)
@@ -107,25 +106,26 @@ class Visualization:
         plt.ylabel("Area (m^2)",  fontsize=12)
 
 
-        mng = plt.get_current_fig_manager()
-        mng.resize(*mng.window.maxsize())
+        #mng = plt.get_current_fig_manager()
+        #mng.resize(*mng.window.maxsize())
 
         #plt.pause(0.01)
         #plt.draw
-        plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
-        #plt.show() # <modify> See why the execution stops when the the command gets here. 
+        #plt.show(block=False) # <modify> See why the execution stops when the the command gets here. 
+        plt.show() # <modify> See why the execution stops when the the command gets here. 
         FileName = T1 +'.jpg'
-        plt.savefig(FileName)
+        #plt.savefig(FileName)
         #savefig(fname, dpi=None, facecolor='w', edgecolor='w', orientation='portrait', papertype=None, format=None, transparent=False, bbox_inches=None, pad_inches=0.1, frameon=None)
-        plt.close(fig)  
+        #plt.close(fig)  
+
 
     # This function plots the results at the cell center and at the faces, simultaneously.
     @staticmethod
-    def Plot_Full(iii, N, X, X_F, Z_F, V, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T1,T2):
+    def Plot_Full_Results(iii, N, X, X_F, Z_F, V, Q, Q_F, Eta, Eta_F, U, U_F, E, E_F, A, A_F, T1,T2):
         import numpy as np
         import matplotlib.pyplot as plt
         import matplotlib.ticker as tkr
-        
+       
         Q_Arr   = np.zeros(N*2+1, dtype = np.float64)
         V_Arr   = np.zeros(N,     dtype = np.float64)
         Eta_Arr = np.zeros(N*2+1, dtype = np.float64)
@@ -236,6 +236,7 @@ class Visualization:
         #savefig(fname, dpi=None, facecolor='w', edgecolor='w', orientation='portrait', papertype=None, format=None, transparent=False, bbox_inches=None, pad_inches=0.1, frameon=None)
         plt.close(fig)  
 
+
     @staticmethod
     def Plot_Domain(N, X, Z, T):
         import numpy as np
@@ -256,13 +257,4 @@ class Visualization:
         ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%15.13f'))
         plt.show()
 
-        # <delete> after debugging
-        #plt.figure(1)
-        #plt.Figure(figsize=(20,10) )
-        #plt.plot(X_Arr, Z_Arr, label ="Water flow" , color = "c", linewidth = 2.0)
-        #fmt = ".0f%%"
-        #xticks = mtick.FormatStrFormatter(fmt)
-        #plt.title(Title, fontsize = 16)
-        #plt.xlabel("Distance (m)",          fontsize=12)
-        #plt.ylabel(Title,     fontsize=12)
-        #plt.show() # <modify> See why the execution stops when the the command gets here.         
+

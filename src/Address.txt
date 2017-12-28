@@ -1,5 +1,5 @@
 Input file name:
-ex4.inp
+ex4.txt
 
 Input directory: (These directions are for the Linux machine)
 /data2/Babak/MyDocuments/Codes/GitHub/SVE_Energy/input
